@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Artly – Stampe Digitali</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="shortcut icon" href="#" />
+  </head>
+  <body>
+    <!-- HEADER -->
+    <header class="header">
+      <div class="container header-inner">
+        <div class="logo">
+          <img src="img/logo.png" alt="Artly Logo" class="logo-img" />
+          <span class="logo-text">Artly</span>
+        </div>
+
+        <nav class="nav">
+          <ul class="nav-list">
+            <li><a href="#hero">Home</a></li>
+            <li><a href="#collections">Collezioni</a></li>
+            <li><a href="#how-it-works">Come funziona</a></li>
+            <li><a href="#about">Su di noi</a></li>
+          </ul>
+        </nav>
+
+        <div class="header-actions">
+          <button class="icon-btn" id="searchBtn" aria-label="Cerca">🔍</button>
+          <button class="icon-btn cart-btn" aria-label="Carrello">
+            🛒
+            <span class="cart-count" id="cartCount">0</span>
+          </button>
+          <button class="btn btn-outline">Accedi</button>
+          <button class="menu-toggle" id="menuToggle" aria-label="Menu">
+            ☰
+          </button>
+        </div>
+      </div>
+
+      <!-- Mobile nav -->
+      <nav class="nav-mobile" id="mobileNav">
+        <ul>
+          <li><a href="#hero">Home</a></li>
+          <li><a href="#collections">Collezioni</a></li>
+          <li><a href="#how-it-works">Come funziona</a></li>
+          <li><a href="#about">Su di noi</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <!-- HERO -->
+    <!-- <section class="hero" id="hero">
+      <div class="container hero-inner">
+        <div class="hero-text">
+          <h1>Crea, stampa, esponi.</h1>
+          <p>
+            Stampe digitali di alta qualità per dare vita alle tue foto,
+            illustrazioni e progetti grafici. Scegli il formato, la carta e
+            ordina in pochi clic.
+          </p>
+          <div class="hero-actions">
+            <a href="#collections" class="btn">Scopri le stampe</a>
+            <button class="btn btn-ghost" id="uploadBtn">
+              Carica il tuo file →
+            </button>
+          </div>
+
+          <div class="hero-badges">
+            <span>✅ Spedizione rapida 24/48h</span>
+            <span>✅ Qualità professionale</span>
+            <span>✅ Stampa eco-friendly</span>
+          </div>
+        </div>
+
+        <div class="hero-visual">
+          <div class="hero-card hero-card-main">
+            <div class="hero-card-image"></div>
+            <div class="hero-card-info">
+              <h3>Poster Fine Art</h3>
+              <p>Texture opaca • 50×70 cm</p>
+              <span class="price">da 24,90€</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section> -->
+
+    <section class="hero-simple">
+      <div class="hero-overlay"></div>
+
+      <div class="hero-content">
+        <h1>Stampe digitali pronte da appendere</h1>
+        <p>
+          Scegli tra centinaia di poster, illustrazioni e fotografie
+          professionali. Qualità da studio, spedizione veloce.
+        </p>
+        <a href="#collections" class="btn">Esplora le collezioni</a>
+      </div>
+    </section>
+
+    <!-- SEARCH BAR -->
+    <section class="search-section">
+      <div class="container search-inner">
+        <div class="search-label">
+          <h2>Cerca tra centinaia di design</h2>
+          <p>Parole chiave, stile, artista, colore...</p>
+        </div>
+        <div class="search-bar">
+          <input
+            type="text"
+            id="searchInput"
+            placeholder="Es. minimal, astratto, botanico..."
+          />
+          <button class="btn" id="searchSubmit">Cerca</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- COLLECTIONS -->
+    <section class="section" id="collections">
+      <div class="container">
+        <div class="section-header">
+          <h2>Collezioni in evidenza</h2>
+          <p>Sfoglia le nostre selezioni curate dai designer.</p>
+        </div>
+
+        <div class="collections-grid">
+          <card class="collection-card">
+            <div class="collection-image collection-image-1"></div>
+            <div class="collection-body">
+              <h3>Astratto &amp; Geometrico</h3>
+              <p>
+                Linee, forme e colori per un tocco moderno in salotto o in
+                studio.
+              </p>
+              <button class="link-button">Vedi collezione →</button>
+            </div>
+          </card>
+
+          <card class="collection-card">
+            <div class="collection-image collection-image-2"></div>
+            <div class="collection-body">
+              <h3>Fotografia Urbana</h3>
+              <p>
+                Scatti metropolitani in alta risoluzione per pareti dal
+                carattere deciso.
+              </p>
+              <button class="link-button">Vedi collezione →</button>
+            </div>
+          </card>
+
+          <card class="collection-card">
+            <div class="collection-image collection-image-3"></div>
+            <div class="collection-body">
+              <h3>Nature &amp; Botanica</h3>
+              <p>Verde, texture naturali e macro per un mood rilassante.</p>
+              <button class="link-button">Vedi collezione →</button>
+            </div>
+          </card>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="section" id="how-it-works">
+      <div class="container">
+        <div class="section-header">
+          <h2>Come funziona</h2>
+          <p>Ordina le tue stampe in 3 semplici passaggi.</p>
+        </div>
+
+        <div class="steps-grid">
+          <div class="step-card">
+            <div class="step-number">1</div>
+            <h3>Scegli il design</h3>
+            <p>
+              Seleziona una delle nostre collezioni oppure carica il tuo file in
+              alta qualità.
+            </p>
+          </div>
+          <div class="step-card">
+            <div class="step-number">2</div>
+            <h3>Personalizza la stampa</h3>
+            <p>
+              Scegli formato, carta, finitura e opzioni extra come bordi o
+              cornici.
+            </p>
+          </div>
+          <div class="step-card">
+            <div class="step-number">3</div>
+            <h3>Ordina e ricevi</h3>
+            <p>
+              Stampiamo e spediamo entro 24/48h, con imballaggio protettivo e
+              tracking.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABOUT / TRUST -->
+    <section class="section section-alt" id="about">
+      <div class="container about-grid">
+        <div>
+          <h2>Qualità da studio professionale.</h2>
+          <p class="about-text">
+            Lavoriamo con stampanti di ultima generazione e carte selezionate
+            per garantire colori fedeli, neri profondi e stampe che durano nel
+            tempo. Ogni ordine viene controllato a mano prima della spedizione.
+          </p>
+          <ul class="about-list">
+            <li>✔ Profilazione colore professionale</li>
+            <li>✔ Imballaggi plastica-free</li>
+            <li>✔ Supporto dedicato via chat ed email</li>
+          </ul>
+        </div>
+
+        <div class="review-card">
+          <h3>Clienti soddisfatti</h3>
+          <p class="rating">★ 4.9/5</p>
+          <p class="review-text">
+            “Stampe splendide, colori perfetti e spedizione super veloce. Ho
+            rifatto tutta la parete del soggiorno!”
+          </p>
+          <p class="review-author">— Martina, Milano</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- NEWSLETTER -->
+    <section class="section newsletter-section">
+      <div class="container newsletter-inner">
+        <div>
+          <h2>Iscriviti alla newsletter</h2>
+          <p>
+            10% di sconto sul primo ordine e anteprime esclusive delle nuove
+            collezioni.
+          </p>
+        </div>
+        <form class="newsletter-form" id="newsletterForm">
+          <input
+            type="email"
+            id="newsletterEmail"
+            placeholder="La tua email"
+            required
+          />
+          <button type="submit" class="btn">Iscriviti</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <div class="container footer-inner">
+        <div class="footer-column">
+          <div class="logo footer-logo">
+            <img src="img/logo.png" alt="Artly Logo" class="logo-img" />
+          </div>
+          <p class="footer-text">
+            Stampe digitali pensate per chi ama l’immagine, il colore e i
+            dettagli.
+          </p>
+        </div>
+
+        <div class="footer-column">
+          <h4>Link utili</h4>
+          <ul>
+            <li><a href="#">FAQ</a></li>
+            <li><a href="#">Spedizioni &amp; Resi</a></li>
+            <li><a href="#">Metodi di pagamento</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-column">
+          <h4>Contatti</h4>
+          <ul>
+            <li><a href="mailto:info@inkwave.it">info@inkwave.it</a></li>
+            <li><a href="#">Instagram</a></li>
+            <li><a href="#">Behance</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="container footer-bottom">
+        <p>
+          © <span id="currentYear"></span> InkWave. Tutti i diritti riservati.
+        </p>
+        <div class="footer-bottom-links">
+          <a href="#">Privacy</a>
+          <a href="#">Cookie</a>
+          <a href="#">Termini</a>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Toast / notifiche -->
+    <div class="toast" id="toast"></div>
+
+    <script src="script.js"></script>
+  </body>
+</html>

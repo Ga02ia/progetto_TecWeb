@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Registrati – InkWave</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <!-- HEADER -->
+    <header class="header">
+      <div class="container header-inner">
+        <div class="logo">
+          <span class="logo-mark">IW</span>
+          <span class="logo-text">InkWave</span>
+        </div>
+
+        <nav class="nav">
+          <ul class="nav-list">
+            <li><a href="index.html#hero">Home</a></li>
+            <li><a href="index.html#collections">Collezioni</a></li>
+            <li><a href="index.html#how-it-works">Come funziona</a></li>
+            <li><a href="index.html#about">Su di noi</a></li>
+          </ul>
+        </nav>
+
+        <div class="header-actions">
+          <a href="login.html" class="btn btn-outline">Accedi</a>
+          <a href="register.html" class="btn">Registrati</a>
+          <button class="menu-toggle" id="menuToggle" aria-label="Menu">
+            ☰
+          </button>
+        </div>
+      </div>
+
+      <!-- Mobile nav -->
+      <nav class="nav-mobile" id="mobileNav">
+        <ul>
+          <li><a href="index.html#hero">Home</a></li>
+          <li><a href="index.html#collections">Collezioni</a></li>
+          <li><a href="index.html#how-it-works">Come funziona</a></li>
+          <li><a href="index.html#about">Su di noi</a></li>
+          <li><a href="login.html">Accedi</a></li>
+          <li><a href="register.html">Registrati</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <!-- PAGINA REGISTRAZIONE -->
+    <main class="auth-page">
+      <div class="container auth-grid">
+        <div class="auth-intro">
+          <h1>Crea il tuo account InkWave</h1>
+          <p>
+            Salva i tuoi progetti, crea wishlist e velocizza i prossimi ordini
+            con un profilo personale.
+          </p>
+          <ul class="auth-points">
+            <li>✔ Preferiti e collezioni personalizzate</li>
+            <li>✔ Notifiche su nuove stampe e offerte</li>
+            <li>✔ Gestione semplice di indirizzi e fatture</li>
+          </ul>
+        </div>
+
+        <div class="auth-card">
+          <h2>Registrati</h2>
+          <p class="auth-subtitle">Ci vorranno solo pochi secondi.</p>
+
+          <form class="auth-form" id="registerForm">
+            <div class="form-row two-cols">
+              <div class="form-group">
+                <label for="firstName">Nome</label>
+                <input
+                  type="text"
+                  id="firstName"
+                  name="firstName"
+                  placeholder="Mario"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label for="lastName">Cognome</label>
+                <input
+                  type="text"
+                  id="lastName"
+                  name="lastName"
+                  placeholder="Rossi"
+                  required
+                />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="registerEmail">Email</label>
+              <input
+                type="email"
+                id="registerEmail"
+                name="email"
+                placeholder="nome@esempio.it"
+                required
+              />
+            </div>
+
+            <div class="form-row two-cols">
+              <div class="form-group">
+                <label for="registerPassword">Password</label>
+                <input
+                  type="password"
+                  id="registerPassword"
+                  name="password"
+                  placeholder="Minimo 8 caratteri"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label for="registerPasswordConfirm">Conferma password</label>
+                <input
+                  type="password"
+                  id="registerPasswordConfirm"
+                  name="passwordConfirm"
+                  placeholder="Ripeti la password"
+                  required
+                />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <label class="checkbox-label">
+                <input type="checkbox" id="terms" required />
+                <span>
+                  Accetto i
+                  <a href="#" class="form-link">termini e condizioni</a>
+                  e l'<a href="#" class="form-link">informativa privacy</a>.
+                </span>
+              </label>
+            </div>
+
+            <div class="form-row">
+              <label class="checkbox-label">
+                <input type="checkbox" id="newsletterOptin" />
+                <span> Voglio ricevere novità e offerte via email. </span>
+              </label>
+            </div>
+
+            <button type="submit" class="btn auth-btn">Crea account</button>
+
+            <p class="auth-alt">
+              Hai già un account?
+              <a href="login.html" class="form-link">Accedi</a>
+            </p>
+          </form>
+        </div>
+      </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <div class="container footer-inner">
+        <div class="footer-column">
+          <div class="logo footer-logo">
+            <span class="logo-mark">IW</span>
+            <span class="logo-text">InkWave</span>
+          </div>
+          <p class="footer-text">
+            Stampe digitali pensate per chi ama l’immagine, il colore e i
+            dettagli.
+          </p>
+        </div>
+
+        <div class="footer-column">
+          <h4>Link utili</h4>
+          <ul>
+            <li><a href="#">FAQ</a></li>
+            <li><a href="#">Spedizioni &amp; Resi</a></li>
+            <li><a href="#">Metodi di pagamento</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-column">
+          <h4>Contatti</h4>
+          <ul>
+            <li><a href="mailto:info@inkwave.it">info@inkwave.it</a></li>
+            <li><a href="#">Instagram</a></li>
+            <li><a href="#">Behance</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="container footer-bottom">
+        <p>
+          © <span id="currentYear"></span> InkWave. Tutti i diritti riservati.
+        </p>
+        <div class="footer-bottom-links">
+          <a href="#">Privacy</a>
+          <a href="#">Cookie</a>
+          <a href="#">Termini</a>
+        </div>
+      </div>
+    </footer>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
