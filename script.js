@@ -86,6 +86,9 @@ function updateHeaderAuth(authData) {
           <strong>${authData.nome} ${authData.cognome}</strong>
           <span>${authData.email}</span>
         </div>
+        <div class="user-dropdown-item" onclick="window.location.href='profilo.html'">
+          <span>Il mio profilo</span>
+        </div>
         <div class="user-dropdown-item" id="logoutBtn">
           <span>Logout</span>
         </div>
