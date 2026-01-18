@@ -95,6 +95,17 @@ document.addEventListener("DOMContentLoaded", function () {
   function createProductCard(product) {
     const card = document.createElement("div");
     card.className = "product-card";
+    card.style.cursor = "pointer";
+
+    // Rendi l'intera card cliccabile (escluso il pulsante aggiungi)
+    card.addEventListener("click", (e) => {
+      // Se il click è sul pulsante, non fare nulla (sarà gestito dall'event delegation)
+      if (e.target.closest(".add-to-cart")) {
+        return;
+      }
+      // Altrimenti vai alla pagina dettaglio
+      window.location.href = `dettaglio-prodotto.html?id=${product.id}`;
+    });
 
     // Immagine del prodotto
     const imageDiv = document.createElement("div");

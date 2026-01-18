@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dettaglio Prodotto – Artly</title>
+    <link rel="stylesheet" href="style.css?v=12" />
+    <link rel="shortcut icon" href="#" />
+  </head>
+  <body>
+    <!-- HEADER -->
+    <header class="header">
+      <div class="container header-inner">
+        <div class="logo">
+          <img src="img/logo.png" alt="Artly Logo" class="logo-img" />
+          <span class="logo-text">Artly</span>
+        </div>
+
+        <nav class="nav">
+          <ul class="nav-list">
+            <li><a href="home.html#hero">Home</a></li>
+            <li><a href="prodotti.html">Prodotti</a></li>
+            <li><a href="home.html#how-it-works">Come funziona</a></li>
+            <li><a href="home.html#about">Su di noi</a></li>
+          </ul>
+        </nav>
+
+        <div class="header-actions">
+          <button class="icon-btn" id="searchBtn" aria-label="Cerca">🔍</button>
+          <a
+            href="carrello.html"
+            class="icon-btn cart-btn"
+            aria-label="Carrello"
+          >
+            🛒
+            <span class="cart-count" id="cartCount">0</span>
+          </a>
+          <a href="login.html" class="btn btn-outline">Accedi</a>
+          <button class="menu-toggle" id="menuToggle" aria-label="Menu">
+            ☰
+          </button>
+        </div>
+      </div>
+
+      <!-- Mobile nav -->
+      <nav class="nav-mobile" id="mobileNav">
+        <ul>
+          <li><a href="home.html#hero">Home</a></li>
+          <li><a href="prodotti.html">Prodotti</a></li>
+          <li><a href="home.html#how-it-works">Come funziona</a></li>
+          <li><a href="home.html#about">Su di noi</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <!-- DETTAGLIO PRODOTTO -->
+    <section class="product-detail-section">
+      <div class="container">
+        <a href="prodotti.html" class="back-link">← Torna ai prodotti</a>
+
+        <div class="product-detail-container" id="productDetailContainer">
+          <div class="loading-spinner">Caricamento prodotto...</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <div class="container footer-inner">
+        <div class="footer-col">
+          <h4>Artly</h4>
+          <p>La tua galleria d'arte digitale preferita</p>
+        </div>
+        <div class="footer-col">
+          <h4>Link rapidi</h4>
+          <ul>
+            <li><a href="home.html">Home</a></li>
+            <li><a href="prodotti.html">Prodotti</a></li>
+            <li><a href="home.html#about">Su di noi</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Contatti</h4>
+          <p>info@artly.com</p>
+          <p>+39 123 456 7890</p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2025 Artly. Tutti i diritti riservati.</p>
+      </div>
+    </footer>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <!-- CART MODAL -->
+    <div class="cart-modal" id="cartModal" aria-hidden="true" role="dialog">
+      <div class="cart-modal-overlay" data-close="true"></div>
+      <div class="cart-modal-content">
+        <button class="cart-modal-close" data-close="true" aria-label="Chiudi">
+          ✕
+        </button>
+
+        <div class="cart-modal-body">
+          <h2 class="cart-modal-title">🛒 Carrello</h2>
+
+          <div class="cart-modal-products-list" id="cartModalProductsList">
+            <!-- I prodotti del carrello verranno inseriti qui dinamicamente -->
+          </div>
+
+          <div class="cart-modal-summary">
+            <div class="cart-modal-row">
+              <span>Articoli</span>
+              <strong id="cartModalItems">0</strong>
+            </div>
+            <div class="cart-modal-row">
+              <span>Subtotale</span>
+              <strong id="cartModalSubtotal">€0,00</strong>
+            </div>
+            <div class="cart-modal-row">
+              <span>Spedizione</span>
+              <strong id="cartModalShipping">€0,00</strong>
+            </div>
+            <div class="cart-modal-row total">
+              <span>Totale</span>
+              <strong id="cartModalTotal">€0,00</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="cart-modal-actions">
+          <button class="btn btn-outline" type="button" data-close="true">
+            Continua lo shopping
+          </button>
+          <a class="btn" href="carrello.html">Vai al carrello</a>
+        </div>
+      </div>
+    </div>
+
+    <script src="script.js?v=12"></script>
+    <script src="dettaglio-prodotto.js?v=1"></script>
+  </body>
+</html>
