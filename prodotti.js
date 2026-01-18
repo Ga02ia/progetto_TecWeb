@@ -11,6 +11,14 @@ document.addEventListener("DOMContentLoaded", function () {
   const categoryFilter = document.getElementById("categoryFilter");
   const sortFilter = document.getElementById("sortFilter");
   const productSearch = document.getElementById("productSearch");
+  const cartModal = document.getElementById("cartModal");
+  const cartModalProductsList = document.getElementById(
+    "cartModalProductsList",
+  );
+  const cartModalItems = document.getElementById("cartModalItems");
+  const cartModalSubtotal = document.getElementById("cartModalSubtotal");
+  const cartModalShipping = document.getElementById("cartModalShipping");
+  const cartModalTotal = document.getElementById("cartModalTotal");
 
   let allProducts = [];
   let filteredProducts = [];
@@ -198,7 +206,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const selectedCategory = categoryFilter.value;
     if (selectedCategory) {
       result = result.filter(
-        (p) => p.id_categoria === parseInt(selectedCategory)
+        (p) => p.id_categoria === parseInt(selectedCategory),
       );
     }
 
@@ -209,7 +217,7 @@ document.addEventListener("DOMContentLoaded", function () {
         (p) =>
           p.titolo.toLowerCase().includes(searchTerm) ||
           (p.descrizione && p.descrizione.toLowerCase().includes(searchTerm)) ||
-          (p.autore && p.autore.toLowerCase().includes(searchTerm))
+          (p.autore && p.autore.toLowerCase().includes(searchTerm)),
       );
     }
 
@@ -243,10 +251,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Event delegation per i bottoni "Aggiungi al carrello"
   productsGrid.addEventListener("click", function (e) {
-    if (e.target.classList.contains("add-to-cart")) {
-      const productId = e.target.getAttribute("data-id");
-      addToCart(productId);
-    }
+    const button = e.target.closest(".add-to-cart");
+    if (!button) return;
+    const productId = button.getAttribute("data-id");
+    addToCart(productId);
   });
 
   // Funzione per aggiungere al carrello
@@ -282,6 +290,9 @@ document.addEventListener("DOMContentLoaded", function () {
     // Aggiorna il contatore del carrello nell'header
     updateCartCountDisplay(cart);
 
+    // Mostra modale riepilogo
+    showCartModal(product, cart);
+
     // Mostra notifica
     if (typeof showToast === "function") {
       showToast(`"${product.titolo}" aggiunto al carrello ✅`);
@@ -290,13 +301,126 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
+  function formatPrice(value) {
+    return `€${value.toFixed(2).replace(".", ",")}`;
+  }
+
+  function createCartProductHTML(product) {
+    const qty = product.quantity || 1;
+    let imageHTML = "";
+
+    if (product.image_path && product.image_path.includes("pinterest.com")) {
+      const colors = [
+        "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+        "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
+        "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
+        "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)",
+        "linear-gradient(135deg, #fa709a 0%, #fee140 100%)",
+        "linear-gradient(135deg, #30cfd0 0%, #330867 100%)",
+      ];
+      const colorIndex = product.id % colors.length;
+      imageHTML = `<div class="cart-modal-image" style="background: ${colors[colorIndex]}">
+        <span style="font-size: 2.2rem; opacity: 0.75">🖼️</span>
+      </div>`;
+    } else if (product.image_path) {
+      imageHTML = `<div class="cart-modal-image" style="background-image: linear-gradient(135deg, rgba(5, 8, 22, 0.4), transparent), url('${product.image_path}'); background-size: cover; background-position: center;"></div>`;
+    } else {
+      imageHTML = `<div class="cart-modal-image" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)"></div>`;
+    }
+
+    return `
+      <div class="cart-modal-product">
+        ${imageHTML}
+        <div class="cart-modal-info">
+          <p class="cart-modal-title">${product.titolo}</p>
+          <p class="cart-modal-author">by ${product.autore || "Artly"}</p>
+          <div class="cart-modal-meta">
+            <span>${formatPrice(parseFloat(product.prezzo))}</span>
+            <span>Qtà: ${qty}</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function calculateCartTotals(cart) {
+    const itemsCount = cart.reduce(
+      (sum, item) => sum + (item.quantity || 1),
+      0,
+    );
+    const subtotal = cart.reduce(
+      (sum, item) => sum + parseFloat(item.prezzo) * (item.quantity || 1),
+      0,
+    );
+    const shipping = subtotal >= 50 ? 0 : cart.length > 0 ? 4.9 : 0;
+    const total = subtotal + shipping;
+
+    return { itemsCount, subtotal, shipping, total };
+  }
+
+  function showCartModal(product, cart) {
+    if (!cartModal || !cartModalProductsList) return;
+
+    console.log("Prodotti nel carrello:", cart.length);
+    console.log("Carrello completo:", cart);
+
+    const totals = calculateCartTotals(cart);
+
+    // Genera HTML per tutti i prodotti nel carrello
+    let productsHTML = "";
+    cart.forEach((item) => {
+      productsHTML += createCartProductHTML(item);
+    });
+
+    // Inserisci i prodotti nella lista
+    cartModalProductsList.innerHTML = productsHTML;
+
+    // Aggiorna i totali
+    if (cartModalItems) cartModalItems.textContent = totals.itemsCount;
+    if (cartModalSubtotal)
+      cartModalSubtotal.textContent = formatPrice(totals.subtotal);
+    if (cartModalShipping) {
+      cartModalShipping.textContent =
+        totals.shipping === 0 ? "Gratis" : formatPrice(totals.shipping);
+    }
+    if (cartModalTotal) cartModalTotal.textContent = formatPrice(totals.total);
+
+    cartModal.classList.add("is-open");
+    cartModal.style.display = "block";
+    cartModal.setAttribute("aria-hidden", "false");
+    document.body.classList.add("modal-open");
+  }
+
+  function closeCartModal() {
+    if (!cartModal) return;
+    cartModal.classList.remove("is-open");
+    cartModal.style.display = "none";
+    cartModal.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("modal-open");
+  }
+
+  if (cartModal) {
+    cartModal.addEventListener("click", (event) => {
+      const target = event.target;
+      if (target && target.dataset && target.dataset.close === "true") {
+        closeCartModal();
+      }
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && cartModal.classList.contains("is-open")) {
+        closeCartModal();
+      }
+    });
+  }
+
   // Aggiorna il contatore del carrello nell'header
   function updateCartCountDisplay(cart) {
     const cartCountEl = document.getElementById("cartCount");
     if (cartCountEl) {
       const totalItems = cart.reduce(
         (sum, item) => sum + (item.quantity || 1),
-        0
+        0,
       );
       cartCountEl.textContent = totalItems;
     }

@@ -54,7 +54,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
     cartEmpty.style.display = "none";
     cartItemsList.innerHTML = "";
-    cartItemsCount.textContent = cart.length;
+    const totalItems = cart.reduce(
+      (sum, item) => sum + (item.quantity || 1),
+      0,
+    );
+    cartItemsCount.textContent = totalItems;
 
     cart.forEach((item, index) => {
       const cartItem = createCartItemElement(item, index);
@@ -141,7 +145,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const priceDiv = document.createElement("div");
     priceDiv.className = "cart-item-price";
     const itemTotal = (parseFloat(item.prezzo) * (item.quantity || 1)).toFixed(
-      2
+      2,
     );
     priceDiv.textContent = `€${itemTotal}`;
 
@@ -281,7 +285,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (cartCountEl) {
       const totalItems = cart.reduce(
         (sum, item) => sum + (item.quantity || 1),
-        0
+        0,
       );
       cartCountEl.textContent = totalItems;
     }
@@ -322,7 +326,7 @@ document.addEventListener("DOMContentLoaded", function () {
       .catch((error) => {
         console.error(
           "Errore nel caricamento dei prodotti consigliati:",
-          error
+          error,
         );
       });
   }

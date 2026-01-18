@@ -19,7 +19,7 @@ function initCartCounter() {
         const cart = JSON.parse(savedCart);
         const totalItems = cart.reduce(
           (sum, item) => sum + (item.quantity || 1),
-          0
+          0,
         );
         cartCountEl.textContent = totalItems;
       } catch (e) {
@@ -46,6 +46,95 @@ function showToast(message) {
 
 // Inizializza all'avvio
 initCartCounter();
+checkUserAuth();
+
+// Verifica lo stato di autenticazione dell'utente
+function checkUserAuth() {
+  fetch("check_session.php")
+    .then((response) => response.json())
+    .then((data) => {
+      updateHeaderAuth(data);
+    })
+    .catch((error) => {
+      console.error("Errore verifica autenticazione:", error);
+    });
+}
+
+// Aggiorna l'header in base allo stato di autenticazione
+function updateHeaderAuth(authData) {
+  const loginBtn = document.querySelector(
+    '.header-actions a[href="login.html"]',
+  );
+
+  if (authData.authenticated && authData.nome && authData.cognome) {
+    // Utente loggato: mostra il cerchietto con le iniziali
+    if (loginBtn) {
+      const iniziali = (
+        authData.nome.charAt(0) + authData.cognome.charAt(0)
+      ).toUpperCase();
+
+      const profileCircle = document.createElement("div");
+      profileCircle.className = "user-profile-circle";
+      profileCircle.textContent = iniziali;
+      profileCircle.title = `${authData.nome} ${authData.cognome}`;
+
+      // Crea dropdown menu
+      const dropdown = document.createElement("div");
+      dropdown.className = "user-dropdown";
+      dropdown.innerHTML = `
+        <div class="user-dropdown-header">
+          <strong>${authData.nome} ${authData.cognome}</strong>
+          <span>${authData.email}</span>
+        </div>
+        <div class="user-dropdown-item" id="logoutBtn">
+          <span>Logout</span>
+        </div>
+      `;
+
+      const wrapper = document.createElement("div");
+      wrapper.className = "user-profile-wrapper";
+      wrapper.appendChild(profileCircle);
+      wrapper.appendChild(dropdown);
+
+      // Toggle dropdown
+      profileCircle.addEventListener("click", (e) => {
+        e.stopPropagation();
+        dropdown.classList.toggle("show");
+      });
+
+      // Chiudi dropdown cliccando fuori
+      document.addEventListener("click", () => {
+        dropdown.classList.remove("show");
+      });
+
+      // Logout handler
+      const logoutBtn = dropdown.querySelector("#logoutBtn");
+      logoutBtn.addEventListener("click", handleLogout);
+
+      loginBtn.replaceWith(wrapper);
+    }
+  } else {
+    // Utente non loggato: mostra il pulsante Accedi
+    // (già presente di default)
+  }
+}
+
+// Gestisce il logout
+function handleLogout() {
+  fetch("logout.php")
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        showToast("Logout effettuato ✓");
+        setTimeout(() => {
+          window.location.href = "home.html";
+        }, 1000);
+      }
+    })
+    .catch((error) => {
+      console.error("Errore logout:", error);
+    });
+}
 
 // Upload button (simulazione)
 const uploadBtn = document.getElementById("uploadBtn");
@@ -123,6 +212,24 @@ function showMessage(message, type) {
 }
 // ---------- REGISTRAZIONE (solo se esiste registerForm) ----------
 document.addEventListener("DOMContentLoaded", function () {
+  // Gestione toggle password
+  const passwordToggles = document.querySelectorAll(".password-toggle");
+  passwordToggles.forEach((toggle) => {
+    toggle.addEventListener("click", function () {
+      const targetId = this.getAttribute("data-target");
+      const input = document.getElementById(targetId);
+      const icon = this.querySelector(".eye-icon");
+
+      if (input.type === "password") {
+        input.type = "text";
+        icon.textContent = "👁️‍🗨️";
+      } else {
+        input.type = "password";
+        icon.textContent = "👁️";
+      }
+    });
+  });
+
   const registerForm = document.getElementById("registerForm");
   if (!registerForm) return; // se non è la pagina di registrazione, esci
 
@@ -132,9 +239,17 @@ document.addEventListener("DOMContentLoaded", function () {
     const nome = document.getElementById("firstName").value.trim();
     const cognome = document.getElementById("lastName").value.trim();
     const mail = document.getElementById("registerEmail").value.trim();
+    const telefono = document.getElementById("telefono").value.trim();
+    const via = document.getElementById("via").value.trim();
+    const citta = document.getElementById("citta").value.trim();
+    const provincia = document
+      .getElementById("provincia")
+      .value.trim()
+      .toUpperCase();
+    const cap = document.getElementById("cap").value.trim();
     const password = document.getElementById("registerPassword").value;
     const passwordConfirm = document.getElementById(
-      "registerPasswordConfirm"
+      "registerPasswordConfirm",
     ).value;
     const terms = document.getElementById("terms").checked;
 
@@ -145,13 +260,33 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    if (!nome || !cognome || !mail || !password) {
+    if (
+      !nome ||
+      !cognome ||
+      !mail ||
+      !telefono ||
+      !via ||
+      !citta ||
+      !provincia ||
+      !cap ||
+      !password
+    ) {
       showMessage("Compila tutti i campi", "error");
       return;
     }
 
     if (!mail.includes("@")) {
       showMessage("Email non valida", "error");
+      return;
+    }
+
+    if (provincia.length !== 2) {
+      showMessage("Provincia deve essere di 2 caratteri (es. MI)", "error");
+      return;
+    }
+
+    if (cap.length !== 5 || isNaN(cap)) {
+      showMessage("CAP non valido (5 cifre)", "error");
       return;
     }
 
@@ -173,9 +308,15 @@ document.addEventListener("DOMContentLoaded", function () {
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       credentials: "same-origin",
       body: `nome=${encodeURIComponent(nome)}&cognome=${encodeURIComponent(
-        cognome
-      )}&mail=${encodeURIComponent(mail)}&password=${encodeURIComponent(
-        password
+        cognome,
+      )}&mail=${encodeURIComponent(mail)}&telefono=${encodeURIComponent(
+        telefono,
+      )}&via=${encodeURIComponent(via)}&citta=${encodeURIComponent(
+        citta,
+      )}&provincia=${encodeURIComponent(provincia)}&cap=${encodeURIComponent(
+        cap,
+      )}&password=${encodeURIComponent(
+        password,
       )}&password_confirm=${encodeURIComponent(passwordConfirm)}`,
     })
       .then((response) => response.json())
@@ -236,7 +377,7 @@ document.addEventListener("DOMContentLoaded", function () {
       },
       credentials: "same-origin",
       body: `email=${encodeURIComponent(email)}&password=${encodeURIComponent(
-        password
+        password,
       )}`,
     })
       .then((response) => response.json())

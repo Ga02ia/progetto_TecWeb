@@ -125,6 +125,61 @@
       </div>
     </section>
 
+    <!-- MODALE CARRELLO -->
+    <div
+      class="cart-modal"
+      id="cartModal"
+      style="display: none"
+      aria-hidden="true"
+    >
+      <div class="cart-modal-overlay" data-close="true"></div>
+      <div
+        class="cart-modal-content"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="cartModalTitle"
+      >
+        <div class="cart-modal-header">
+          <h3 id="cartModalTitle">Carrello</h3>
+          <button class="cart-modal-close" type="button" data-close="true">
+            ✕
+          </button>
+        </div>
+
+        <div class="cart-modal-body">
+          <div class="cart-modal-products-list" id="cartModalProductsList">
+            <!-- I prodotti del carrello verranno inseriti qui dinamicamente -->
+          </div>
+
+          <div class="cart-modal-summary">
+            <div class="cart-modal-row">
+              <span>Articoli</span>
+              <strong id="cartModalItems">0</strong>
+            </div>
+            <div class="cart-modal-row">
+              <span>Subtotale</span>
+              <strong id="cartModalSubtotal">€0,00</strong>
+            </div>
+            <div class="cart-modal-row">
+              <span>Spedizione</span>
+              <strong id="cartModalShipping">€0,00</strong>
+            </div>
+            <div class="cart-modal-row total">
+              <span>Totale</span>
+              <strong id="cartModalTotal">€0,00</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="cart-modal-actions">
+          <button class="btn btn-outline" type="button" data-close="true">
+            Continua lo shopping
+          </button>
+          <a class="btn" href="carrello.html">Vai al carrello</a>
+        </div>
+      </div>
+    </div>
+
     <!-- FOOTER -->
     <footer class="footer">
       <div class="container footer-inner">
@@ -172,7 +227,7 @@
 
     <div class="toast" id="toast"></div>
 
-    <script src="script.js"></script>
-    <script src="prodotti.js"></script>
+    <script src="script.js?v=8"></script>
+    <script src="prodotti.js?v=8"></script>
   </body>
 </html>

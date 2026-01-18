@@ -3,8 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Carrello – Artly</title>
-    <link rel="stylesheet" href="style.css" />
+    <title>Ordine Completato – Artly</title>
+    <link rel="stylesheet" href="style.css?v=11" />
     <link rel="shortcut icon" href="#" />
   </head>
   <body>
@@ -53,104 +53,54 @@
       </nav>
     </header>
 
-    <!-- HERO CARRELLO -->
-    <section class="hero-simple hero-cart">
-      <div class="hero-overlay"></div>
-      <div class="hero-content">
-        <h1>Il tuo carrello</h1>
-        <p>Rivedi i tuoi articoli prima di procedere all'acquisto</p>
-      </div>
-    </section>
-
-    <!-- CONTENUTO CARRELLO -->
-    <section class="section cart-section">
+    <!-- SUCCESS CONTENT -->
+    <section class="section">
       <div class="container">
-        <div class="cart-layout">
-          <!-- LISTA PRODOTTI -->
-          <div class="cart-items-container">
-            <div class="cart-header">
-              <h2>
-                Articoli nel carrello (<span id="cartItemsCount">0</span>)
-              </h2>
-              <button class="btn-text" id="clearCartBtn">
-                Svuota carrello
-              </button>
+        <div class="success-page">
+          <div class="success-icon">✓</div>
+          <h1>Ordine completato con successo!</h1>
+          <p class="success-subtitle">Grazie per il tuo acquisto</p>
+
+          <div class="success-details">
+            <div class="success-card">
+              <h3>Dettagli ordine</h3>
+              <div class="success-row">
+                <span>Numero ordine:</span>
+                <strong id="orderNumber">#—</strong>
+              </div>
+              <div class="success-row">
+                <span>Data:</span>
+                <strong id="orderDate">—</strong>
+              </div>
+              <div class="success-row">
+                <span>Totale:</span>
+                <strong id="orderAmount">€0,00</strong>
+              </div>
             </div>
 
-            <!-- Messaggio carrello vuoto -->
-            <div class="cart-empty" id="cartEmpty" style="display: none">
-              <div class="empty-icon">🛒</div>
-              <h3>Il tuo carrello è vuoto</h3>
-              <p>Aggiungi alcuni prodotti per iniziare!</p>
-              <a href="prodotti.html" class="btn">Vai ai prodotti</a>
+            <div class="success-info">
+              <h3>📧 Controlla la tua email</h3>
+              <p>
+                Ti abbiamo inviato una conferma dell'ordine con tutti i dettagli
+                e le informazioni per il tracciamento della spedizione.
+              </p>
             </div>
 
-            <!-- Lista articoli -->
-            <div class="cart-items-list" id="cartItemsList">
-              <!-- Gli articoli verranno aggiunti dinamicamente qui -->
+            <div class="success-info">
+              <h3>📦 Quando riceverò il mio ordine?</h3>
+              <p>
+                I tuoi poster verranno spediti entro 2-3 giorni lavorativi.
+                Riceverai un'email con il numero di tracking non appena il pacco
+                sarà pronto per la spedizione.
+              </p>
             </div>
           </div>
 
-          <!-- RIEPILOGO ORDINE -->
-          <div class="cart-summary">
-            <h3>Riepilogo ordine</h3>
-
-            <div class="summary-row">
-              <span>Subtotale</span>
-              <span id="subtotal">€0.00</span>
-            </div>
-
-            <div class="summary-row">
-              <span>Spedizione</span>
-              <span id="shipping">€4.90</span>
-            </div>
-
-            <div
-              class="summary-row summary-discount"
-              id="discountRow"
-              style="display: none"
+          <div class="success-actions">
+            <a href="prodotti.html" class="btn btn-outline"
+              >Continua lo shopping</a
             >
-              <span>Sconto</span>
-              <span id="discount">-€0.00</span>
-            </div>
-
-            <div class="summary-divider"></div>
-
-            <div class="summary-row summary-total">
-              <span>Totale</span>
-              <span id="total">€0.00</span>
-            </div>
-
-            <div class="promo-code">
-              <input
-                type="text"
-                id="promoInput"
-                placeholder="Codice sconto"
-                class="promo-input"
-              />
-              <button class="btn btn-outline btn-sm" id="applyPromoBtn">
-                Applica
-              </button>
-            </div>
-
-            <a href="checkout.html" class="btn btn-checkout" id="checkoutBtn">
-              Procedi all'acquisto
-            </a>
-
-            <div class="payment-icons">
-              <span>💳</span>
-              <span>🔒</span>
-              <span>✅</span>
-            </div>
-            <p class="payment-info">Pagamento sicuro e protetto</p>
-          </div>
-        </div>
-
-        <!-- PRODOTTI CONSIGLIATI -->
-        <div class="recommended-section">
-          <h2>Potrebbero interessarti anche</h2>
-          <div class="products-grid" id="recommendedProducts">
-            <!-- Prodotti consigliati verranno caricati qui -->
+            <a href="home.html" class="btn">Torna alla home</a>
           </div>
         </div>
       </div>
@@ -203,7 +153,45 @@
 
     <div class="toast" id="toast"></div>
 
-    <script src="script.js?v=9"></script>
-    <script src="carrello.js"></script>
+    <script src="script.js?v=10"></script>
+    <script>
+      // Carica i dati dell'ordine
+      document.addEventListener("DOMContentLoaded", function () {
+        const confirmationData = localStorage.getItem("order_confirmation");
+
+        if (!confirmationData) {
+          // Se non ci sono dati, redirect alla home
+          window.location.href = "home.html";
+          return;
+        }
+
+        try {
+          const data = JSON.parse(confirmationData);
+
+          // Mostra i dati dell'ordine
+          document.getElementById("orderNumber").textContent =
+            `#${data.orderId}`;
+
+          const orderDate = new Date(data.data);
+          const formattedDate = orderDate.toLocaleDateString("it-IT", {
+            day: "2-digit",
+            month: "long",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          });
+          document.getElementById("orderDate").textContent = formattedDate;
+
+          document.getElementById("orderAmount").textContent =
+            `€${data.totale.toFixed(2).replace(".", ",")}`;
+
+          // Rimuovi i dati dalla localStorage dopo averli visualizzati
+          localStorage.removeItem("order_confirmation");
+        } catch (e) {
+          console.error("Errore nel parsing dei dati ordine:", e);
+          window.location.href = "home.html";
+        }
+      });
+    </script>
   </body>
 </html>
