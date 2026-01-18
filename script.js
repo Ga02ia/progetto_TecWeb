@@ -9,11 +9,28 @@ if (menuToggle && mobileNav) {
   });
 }
 
-// Fake cart counter + toast
-const cartButtons = document.querySelectorAll(".add-to-cart");
-const cartCountEl = document.getElementById("cartCount");
+// Inizializza il contatore del carrello all'avvio
+function initCartCounter() {
+  const cartCountEl = document.getElementById("cartCount");
+  if (cartCountEl) {
+    const savedCart = localStorage.getItem("artly_cart");
+    if (savedCart) {
+      try {
+        const cart = JSON.parse(savedCart);
+        const totalItems = cart.reduce(
+          (sum, item) => sum + (item.quantity || 1),
+          0
+        );
+        cartCountEl.textContent = totalItems;
+      } catch (e) {
+        cartCountEl.textContent = "0";
+      }
+    }
+  }
+}
+
+// Toast notifications
 const toast = document.getElementById("toast");
-let cartCount = cartCountEl ? parseInt(cartCountEl.textContent, 10) || 0 : 0;
 let toastTimeout;
 
 function showToast(message) {
@@ -27,15 +44,8 @@ function showToast(message) {
   }, 2200);
 }
 
-if (cartButtons && cartButtons.length && cartCountEl) {
-  cartButtons.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      cartCount++;
-      cartCountEl.textContent = cartCount;
-      showToast("Aggiunto al carrello ✅");
-    });
-  });
-}
+// Inizializza all'avvio
+initCartCounter();
 
 // Upload button (simulazione)
 const uploadBtn = document.getElementById("uploadBtn");

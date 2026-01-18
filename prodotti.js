@@ -249,28 +249,74 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  // Funzione per aggiungere al carrello (placeholder)
+  // Funzione per aggiungere al carrello
   function addToCart(productId) {
     const product = allProducts.find((p) => p.id == productId);
-    if (product) {
-      // Incrementa il contatore del carrello
-      const cartCountEl = document.getElementById("cartCount");
-      if (cartCountEl) {
-        let count = parseInt(cartCountEl.textContent) || 0;
-        count++;
-        cartCountEl.textContent = count;
-      }
+    if (!product) return;
 
-      // Mostra notifica
-      if (typeof showToast === "function") {
-        showToast(`"${product.titolo}" aggiunto al carrello ✅`);
-      } else if (typeof showMessage === "function") {
-        showMessage(`"${product.titolo}" aggiunto al carrello`, "success");
+    // Recupera il carrello dal localStorage
+    let cart = [];
+    const savedCart = localStorage.getItem("artly_cart");
+    if (savedCart) {
+      try {
+        cart = JSON.parse(savedCart);
+      } catch (e) {
+        cart = [];
+      }
+    }
+
+    // Verifica se il prodotto è già nel carrello
+    const existingIndex = cart.findIndex((item) => item.id === product.id);
+
+    if (existingIndex >= 0) {
+      // Incrementa la quantità
+      cart[existingIndex].quantity = (cart[existingIndex].quantity || 1) + 1;
+    } else {
+      // Aggiungi nuovo prodotto
+      cart.push({ ...product, quantity: 1 });
+    }
+
+    // Salva il carrello
+    localStorage.setItem("artly_cart", JSON.stringify(cart));
+
+    // Aggiorna il contatore del carrello nell'header
+    updateCartCountDisplay(cart);
+
+    // Mostra notifica
+    if (typeof showToast === "function") {
+      showToast(`"${product.titolo}" aggiunto al carrello ✅`);
+    } else if (typeof showMessage === "function") {
+      showMessage(`"${product.titolo}" aggiunto al carrello`, "success");
+    }
+  }
+
+  // Aggiorna il contatore del carrello nell'header
+  function updateCartCountDisplay(cart) {
+    const cartCountEl = document.getElementById("cartCount");
+    if (cartCountEl) {
+      const totalItems = cart.reduce(
+        (sum, item) => sum + (item.quantity || 1),
+        0
+      );
+      cartCountEl.textContent = totalItems;
+    }
+  }
+
+  // Inizializza il contatore del carrello all'avvio
+  function initCartCount() {
+    const savedCart = localStorage.getItem("artly_cart");
+    if (savedCart) {
+      try {
+        const cart = JSON.parse(savedCart);
+        updateCartCountDisplay(cart);
+      } catch (e) {
+        // Ignora errori
       }
     }
   }
 
   // Carica i prodotti all'avvio
+  initCartCount();
   loadCategories();
   loadProducts();
 });
