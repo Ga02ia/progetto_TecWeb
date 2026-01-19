@@ -255,11 +255,22 @@ function updateHeaderAuth(authData) {
       // Crea dropdown menu
       const dropdown = document.createElement("div");
       dropdown.className = "user-dropdown";
+
+      // Aggiungi voce Dashboard Admin se l'utente è admin
+      const adminMenuItem = authData.is_admin
+        ? `
+        <div class="user-dropdown-item" onclick="window.location.href='admin.html'">
+          <span>⚙️ Dashboard Admin</span>
+        </div>
+      `
+        : "";
+
       dropdown.innerHTML = `
         <div class="user-dropdown-header">
           <strong>${authData.nome} ${authData.cognome}</strong>
           <span>${authData.email}</span>
         </div>
+        ${adminMenuItem}
         <div class="user-dropdown-item" onclick="window.location.href='profilo.html'">
           <span>Il mio profilo</span>
         </div>

@@ -11,7 +11,7 @@ if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
 require_once 'dbConnection.php';
 
 try {
-    $stmt = $conn->prepare("SELECT nome, cognome, mail, telefono, via, citta, provincia, cap FROM utenti WHERE id = :id");
+    $stmt = $conn->prepare("SELECT nome, cognome, mail, telefono, via, citta, provincia, cap, ruolo FROM utenti WHERE id = :id");
     $stmt->bindParam(':id', $_SESSION['id_utente'], PDO::PARAM_INT);
     $stmt->execute();
     
@@ -27,7 +27,9 @@ try {
             "via" => $user['via'],
             "citta" => $user['citta'],
             "provincia" => $user['provincia'],
-            "cap" => $user['cap']
+            "cap" => $user['cap'],
+            "ruolo" => $user['ruolo'],
+            "is_admin" => ($user['ruolo'] == 1)
         ]);
     } else {
         echo json_encode(["authenticated" => false]);

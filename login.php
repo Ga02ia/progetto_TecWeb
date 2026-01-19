@@ -12,23 +12,46 @@ $email = $_POST['email'] ?? '';
 $password = $_POST['password'] ?? '';
 
 try {
-    $stmt = $conn->prepare("SELECT id, mail, password_hash FROM utenti WHERE mail = :email");
+    $stmt = $conn->prepare("SELECT id, mail, password_hash, ruolo FROM utenti WHERE mail = :email");
     $stmt->bindParam(':email', $email, PDO::PARAM_STR);
     $stmt->execute();
 
     if ($stmt->rowCount() > 0) {
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
         
-        // Verifica password con hash
+        // Verifica se l'utente è bloccato (se la colonna esiste)
+        $blocked = isset($user['blocked']) ? $user['blocked'] : 0;
+        if ($blocked == 1) {
+            echo json_encode(["success" => false, "message" => "Account bloccato. Contatta l'amministratore."]);
+            exit();
+        }
+        
+        // Verifica password (supporta sia hash che password in chiaro per compatibilità)
+        $passwordCorretta = false;
+        
+        // Prima prova con password_verify per password hashate
         if (password_verify($password, $user['password_hash'])) {
+            $passwordCorretta = true;
+        } 
+        // Se fallisce, prova confronto diretto (per password in chiaro legacy)
+        elseif ($password === $user['password_hash']) {
+            $passwordCorretta = true;
+        }
+        
+        if ($passwordCorretta) {
             $_SESSION['authenticated'] = true;
             $_SESSION['id_utente'] = $user['id'];
             $_SESSION['email'] = $user['mail'];
+            $_SESSION['ruolo'] = $user['ruolo'];
+            
+            // Redirect diverso per admin
+            $redirect = ($user['ruolo'] == 1) ? "admin.html" : "home.html";
             
             echo json_encode([
                 "success" => true,
                 "message" => "Login effettuato!",
-                "redirect" => "home.html"
+                "redirect" => $redirect,
+                "is_admin" => ($user['ruolo'] == 1)
             ]);
         } else {
             echo json_encode(["success" => false, "message" => "Password errata."]);
@@ -37,6 +60,6 @@ try {
         echo json_encode(["success" => false, "message" => "Email non trovata."]);
     }
 } catch (PDOException $e) {
-    echo json_encode(["success" => false, "message" => "Errore server."]);
+    echo json_encode(["success" => false, "message" => "Errore server: " . $e->getMessage()]);
 }
 ?>
