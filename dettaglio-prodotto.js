@@ -62,7 +62,12 @@ function displayProductDetail(product) {
       
       <div class="product-detail-right">
         <div class="product-detail-category">${product.categoria_nome || "Arte"}</div>
-        <h1 class="product-detail-title">${product.titolo}</h1>
+        <h1 class="product-detail-title">
+          ${product.titolo}
+          <button class="btn-favorite" id="favoriteBtn" title="Aggiungi ai preferiti">
+            <span class="heart-icon">🤍</span>
+          </button>
+        </h1>
         <p class="product-detail-author">di <span>${product.autore}</span></p>
         
         <div class="product-detail-price">
@@ -112,6 +117,15 @@ function displayProductDetail(product) {
   document.getElementById("addToCartBtn").addEventListener("click", () => {
     addToCart(product);
   });
+
+  // Event listener per preferiti
+  const favoriteBtn = document.getElementById("favoriteBtn");
+  if (favoriteBtn) {
+    checkIfFavorite(product.id);
+    favoriteBtn.addEventListener("click", () => {
+      toggleFavorite(product.id);
+    });
+  }
 }
 
 // Gestisce i controlli della quantità
@@ -294,4 +308,74 @@ if (cartModal) {
       closeCartModal();
     }
   });
+}
+
+// Funzioni per gestire i preferiti
+function checkIfFavorite(productId) {
+  const formData = new FormData();
+  formData.append("id_poster", productId);
+  formData.append("action", "check");
+
+  fetch("manage_preferiti.php", {
+    method: "POST",
+    body: formData,
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success && data.isFavorite) {
+        updateFavoriteButton(true);
+      }
+    })
+    .catch((error) => {
+      console.log("Errore controllo preferiti:", error);
+    });
+}
+
+function toggleFavorite(productId) {
+  const favoriteBtn = document.getElementById("favoriteBtn");
+  const heartIcon = favoriteBtn.querySelector(".heart-icon");
+  const isFavorite = heartIcon.textContent === "❤️";
+
+  const formData = new FormData();
+  formData.append("id_poster", productId);
+  formData.append("action", isFavorite ? "remove" : "add");
+
+  fetch("manage_preferiti.php", {
+    method: "POST",
+    body: formData,
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        updateFavoriteButton(data.isFavorite);
+        showToast(data.message);
+      } else {
+        if (data.message === "Non autenticato") {
+          showToast("Effettua il login per aggiungere ai preferiti");
+          setTimeout(() => {
+            window.location.href = "login.html";
+          }, 1500);
+        } else {
+          showToast(data.message);
+        }
+      }
+    })
+    .catch((error) => {
+      console.error("Errore:", error);
+      showToast("Errore nella gestione dei preferiti");
+    });
+}
+
+function updateFavoriteButton(isFavorite) {
+  const favoriteBtn = document.getElementById("favoriteBtn");
+  const heartIcon = favoriteBtn.querySelector(".heart-icon");
+  if (isFavorite) {
+    heartIcon.textContent = "❤️";
+    favoriteBtn.classList.add("is-favorite");
+    favoriteBtn.title = "Rimuovi dai preferiti";
+  } else {
+    heartIcon.textContent = "🤍";
+    favoriteBtn.classList.remove("is-favorite");
+    favoriteBtn.title = "Aggiungi ai preferiti";
+  }
 }

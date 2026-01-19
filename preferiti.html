@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>I miei preferiti – Artly</title>
+    <link rel="stylesheet" href="style.css?v=13" />
+    <link rel="shortcut icon" href="#" />
+  </head>
+  <body>
+    <!-- HEADER -->
+    <header class="header">
+      <div class="container header-inner">
+        <div class="logo">
+          <img src="img/logo.png" alt="Artly Logo" class="logo-img" />
+          <span class="logo-text">Artly</span>
+        </div>
+
+        <nav class="nav">
+          <ul class="nav-list">
+            <li><a href="home.html#hero">Home</a></li>
+            <li><a href="prodotti.html">Prodotti</a></li>
+            <li><a href="home.html#how-it-works">Come funziona</a></li>
+            <li><a href="home.html#about">Su di noi</a></li>
+          </ul>
+        </nav>
+
+        <div class="header-actions">
+          <button class="icon-btn" id="searchBtn" aria-label="Cerca">🔍</button>
+          <a
+            href="carrello.html"
+            class="icon-btn cart-btn"
+            aria-label="Carrello"
+          >
+            🛒
+            <span class="cart-count" id="cartCount">0</span>
+          </a>
+          <a href="login.html" class="btn btn-outline">Accedi</a>
+          <button class="menu-toggle" id="menuToggle" aria-label="Menu">
+            ☰
+          </button>
+        </div>
+      </div>
+
+      <!-- Mobile nav -->
+      <nav class="nav-mobile" id="mobileNav">
+        <ul>
+          <li><a href="home.html#hero">Home</a></li>
+          <li><a href="prodotti.html">Prodotti</a></li>
+          <li><a href="home.html#how-it-works">Come funziona</a></li>
+          <li><a href="home.html#about">Su di noi</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <!-- PREFERITI SECTION -->
+    <section class="favorites-section">
+      <div class="container">
+        <h1 class="favorites-title">❤️ I miei preferiti</h1>
+
+        <div id="favoritesContainer" class="favorites-container">
+          <div class="loading-spinner">Caricamento preferiti...</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <div class="container footer-inner">
+        <div class="footer-col">
+          <h4>Artly</h4>
+          <p>La tua galleria d'arte digitale preferita</p>
+        </div>
+        <div class="footer-col">
+          <h4>Link rapidi</h4>
+          <ul>
+            <li><a href="home.html">Home</a></li>
+            <li><a href="prodotti.html">Prodotti</a></li>
+            <li><a href="home.html#about">Su di noi</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Contatti</h4>
+          <p>info@artly.com</p>
+          <p>+39 123 456 7890</p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2025 Artly. Tutti i diritti riservati.</p>
+      </div>
+    </footer>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script src="script.js?v=13"></script>
+    <script src="preferiti.js?v=1"></script>
+  </body>
+</html>

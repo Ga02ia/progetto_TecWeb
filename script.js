@@ -47,6 +47,180 @@ function showToast(message) {
 // Inizializza all'avvio
 initCartCounter();
 checkUserAuth();
+initSearchDropdownComponent();
+initGlobalSearch();
+
+// Inizializza il dropdown di ricerca se non esiste già
+function initSearchDropdownComponent() {
+  // Trova tutti i pulsanti di ricerca che non hanno ancora il dropdown
+  const searchButtons = document.querySelectorAll(
+    '.icon-btn[aria-label="Cerca"]',
+  );
+
+  searchButtons.forEach((btn) => {
+    // Se il pulsante è già dentro un wrapper, salta
+    if (btn.parentElement.classList.contains("search-dropdown-wrapper")) {
+      return;
+    }
+
+    // Crea un wrapper
+    const wrapper = document.createElement("div");
+    wrapper.className = "search-dropdown-wrapper";
+
+    // Sostituisci il pulsante con il wrapper che contiene il pulsante e il dropdown
+    btn.parentNode.insertBefore(wrapper, btn);
+    wrapper.appendChild(btn);
+
+    // Aggiungi il dropdown HTML
+    wrapper.insertAdjacentHTML(
+      "beforeend",
+      `
+      <div class="search-dropdown" id="searchDropdown">
+        <input 
+          type="text" 
+          id="globalSearchInput" 
+          placeholder="Cerca prodotti..." 
+          class="search-dropdown-input"
+        />
+        <div class="search-results" id="searchResults">
+          <p class="search-placeholder">Inizia a digitare per cercare...</p>
+        </div>
+      </div>
+    `,
+    );
+  });
+}
+
+// Funzione di ricerca globale
+function initGlobalSearch() {
+  const searchBtn = document.getElementById("searchBtn");
+  const searchDropdown = document.getElementById("searchDropdown");
+  const searchInput = document.getElementById("globalSearchInput");
+  const searchResults = document.getElementById("searchResults");
+
+  if (!searchBtn || !searchDropdown || !searchInput) return;
+
+  // Toggle dropdown al click sulla lente
+  searchBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const isOpen = searchDropdown.classList.contains("show");
+
+    if (isOpen) {
+      closeSearchDropdown();
+    } else {
+      openSearchDropdown();
+    }
+  });
+
+  // Focus sull'input quando si apre
+  function openSearchDropdown() {
+    searchDropdown.classList.add("show");
+    setTimeout(() => searchInput.focus(), 100);
+  }
+
+  function closeSearchDropdown() {
+    searchDropdown.classList.remove("show");
+    searchInput.value = "";
+    searchResults.innerHTML =
+      '<p class="search-placeholder">Inizia a digitare per cercare...</p>';
+  }
+
+  // Chiudi dropdown cliccando fuori
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest(".search-dropdown-wrapper")) {
+      closeSearchDropdown();
+    }
+  });
+
+  // Ricerca in tempo reale
+  let searchTimeout;
+  searchInput.addEventListener("input", (e) => {
+    clearTimeout(searchTimeout);
+    const query = e.target.value.trim();
+
+    if (query.length < 2) {
+      searchResults.innerHTML =
+        '<p class="search-placeholder">Digita almeno 2 caratteri...</p>';
+      return;
+    }
+
+    searchResults.innerHTML =
+      '<p class="search-placeholder">Ricerca in corso...</p>';
+
+    searchTimeout = setTimeout(() => {
+      performSearch(query);
+    }, 300);
+  });
+
+  // Esegui ricerca
+  function performSearch(query) {
+    fetch(`get_prodotti.php`)
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success && data.data) {
+          const results = data.data.filter((product) => {
+            const searchText =
+              `${product.titolo} ${product.descrizione} ${product.autore} ${product.categoria_nome}`.toLowerCase();
+            return searchText.includes(query.toLowerCase());
+          });
+
+          displaySearchResults(results, query);
+        }
+      })
+      .catch((error) => {
+        console.error("Errore ricerca:", error);
+        searchResults.innerHTML =
+          '<p class="search-error">Errore nella ricerca</p>';
+      });
+  }
+
+  // Mostra risultati
+  function displaySearchResults(results, query) {
+    if (results.length === 0) {
+      searchResults.innerHTML = `<p class="search-no-results">Nessun risultato per "<strong>${query}</strong>"</p>`;
+      return;
+    }
+
+    let html = `<p class="search-count">${results.length} risultat${results.length > 1 ? "i" : "o"} per "<strong>${query}</strong>"</p>`;
+    html += '<div class="search-results-list">';
+
+    results.slice(0, 5).forEach((product) => {
+      // Gestisce immagine
+      let imageStyle = "";
+      if (product.image_path && product.image_path.includes("pinterest.com")) {
+        const colors = [
+          "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+          "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
+          "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
+          "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)",
+          "linear-gradient(135deg, #fa709a 0%, #fee140 100%)",
+        ];
+        imageStyle = `background: ${colors[product.id % colors.length]};`;
+      } else if (product.image_path) {
+        imageStyle = `background-image: url('${product.image_path}');`;
+      }
+
+      html += `
+        <a href="dettaglio-prodotto.html?id=${product.id}" class="search-result-item">
+          <div class="search-result-image" style="${imageStyle}"></div>
+          <div class="search-result-info">
+            <h4>${product.titolo}</h4>
+            <p class="search-result-author">${product.autore}</p>
+            <p class="search-result-price">€${parseFloat(product.prezzo).toFixed(2)}</p>
+          </div>
+        </a>
+      `;
+    });
+
+    html += "</div>";
+
+    if (results.length > 5) {
+      html += `<a href="prodotti.html" class="search-view-all">Vedi tutti i ${results.length} risultati →</a>`;
+    }
+
+    searchResults.innerHTML = html;
+  }
+}
 
 // Verifica lo stato di autenticazione dell'utente
 function checkUserAuth() {
@@ -88,6 +262,9 @@ function updateHeaderAuth(authData) {
         </div>
         <div class="user-dropdown-item" onclick="window.location.href='profilo.html'">
           <span>Il mio profilo</span>
+        </div>
+        <div class="user-dropdown-item" onclick="window.location.href='preferiti.html'">
+          <span>❤️ I miei preferiti</span>
         </div>
         <div class="user-dropdown-item" id="logoutBtn">
           <span>Logout</span>
