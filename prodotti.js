@@ -1,8 +1,17 @@
 // Gestione pagina prodotti
-document.addEventListener("DOMContentLoaded", function () {
+console.log("📦 prodotti.js: Inizio file");
+
+function initProdottiPage() {
+  console.log("🛍️ Inizializzazione pagina prodotti...");
+
   // Verifica se siamo sulla pagina prodotti
   const productsGrid = document.getElementById("productsGrid");
-  if (!productsGrid) return;
+  if (!productsGrid) {
+    console.error("❌ Elemento productsGrid non trovato!");
+    return;
+  }
+
+  console.log("✅ productsGrid trovato, caricamento in corso...");
 
   const loadingMessage = document.getElementById("loadingMessage");
   const errorMessage = document.getElementById("errorMessage");
@@ -413,7 +422,14 @@ document.addEventListener("DOMContentLoaded", function () {
   if (cartModal) {
     cartModal.addEventListener("click", (event) => {
       const target = event.target;
+
+      // Chiudi il modal se si clicca sul pulsante close o sull'overlay
       if (target && target.dataset && target.dataset.close === "true") {
+        closeCartModal();
+      }
+
+      // Chiudi il modal se si clicca su un link (es. "Vai al carrello")
+      if (target && target.hasAttribute && target.hasAttribute("data-link")) {
         closeCartModal();
       }
     });
@@ -454,4 +470,13 @@ document.addEventListener("DOMContentLoaded", function () {
   initCartCount();
   loadCategories();
   loadProducts();
-});
+}
+
+console.log("📦 prodotti.js: Fine definizione funzione initProdottiPage");
+
+// Esponi la funzione globalmente per la SPA
+window.initProdottiPage = initProdottiPage;
+console.log(
+  "✅ prodotti.js: window.initProdottiPage esposta =",
+  typeof window.initProdottiPage,
+);

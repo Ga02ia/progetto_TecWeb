@@ -1,5 +1,5 @@
 // Gestione Carrello
-document.addEventListener("DOMContentLoaded", function () {
+function initCarrelloPage() {
   // Verifica se siamo sulla pagina carrello
   const cartItemsList = document.getElementById("cartItemsList");
   if (!cartItemsList) return;
@@ -281,14 +281,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Aggiorna il contatore carrello nell'header
   function updateCartCount() {
+    const totalItems = cart.reduce(
+      (sum, item) => sum + (item.quantity || 1),
+      0,
+    );
+
+    // Aggiorna il contatore nell'header
     const cartCountEl = document.getElementById("cartCount");
     if (cartCountEl) {
-      const totalItems = cart.reduce(
-        (sum, item) => sum + (item.quantity || 1),
-        0,
-      );
       cartCountEl.textContent = totalItems;
     }
+
+    // Aggiorna anche lo store globale per mantenere la sincronizzazione
+    store.setState({ cart: [...cart] });
   }
 
   // Procedi al checkout
@@ -436,4 +441,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Inizializza
   loadCart();
-});
+}
+
+window.initCarrelloPage = initCarrelloPage;

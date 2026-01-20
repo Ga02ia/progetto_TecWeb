@@ -46,7 +46,7 @@ try {
             } else {
                 // Lista di tutti gli utenti
                 $stmt = $conn->prepare("
-                    SELECT u.id, u.nome, u.cognome, u.mail, u.ruolo,
+                    SELECT u.id, u.nome, u.cognome, u.mail, u.ruolo, u.blocked,
                     (SELECT COUNT(*) FROM ordini WHERE id_utente = u.id) as num_ordini
                     FROM utenti u
                     ORDER BY u.id DESC

@@ -12,17 +12,16 @@ $email = $_POST['email'] ?? '';
 $password = $_POST['password'] ?? '';
 
 try {
-    $stmt = $conn->prepare("SELECT id, mail, password_hash, ruolo FROM utenti WHERE mail = :email");
+    $stmt = $conn->prepare("SELECT id, mail, password_hash, ruolo, blocked FROM utenti WHERE mail = :email");
     $stmt->bindParam(':email', $email, PDO::PARAM_STR);
     $stmt->execute();
 
     if ($stmt->rowCount() > 0) {
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
         
-        // Verifica se l'utente è bloccato (se la colonna esiste)
-        $blocked = isset($user['blocked']) ? $user['blocked'] : 0;
-        if ($blocked == 1) {
-            echo json_encode(["success" => false, "message" => "Account bloccato. Contatta l'amministratore."]);
+        // Verifica se l'utente è bloccato
+        if (isset($user['blocked']) && $user['blocked'] == 1) {
+            echo json_encode(["success" => false, "message" => "Il tuo account è stato bloccato. Contatta l'amministratore per maggiori informazioni."]);
             exit();
         }
         

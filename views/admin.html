@@ -1,0 +1,111 @@
+<!-- ADMIN SECTION -->
+<section class="admin-section" id="admin-dashboard">
+  <div class="container">
+    <h1>Dashboard Admin</h1>
+
+    <!-- Stats Cards -->
+    <div class="admin-stats">
+      <div class="stat-card">
+        <h3 id="total-products">0</h3>
+        <p>Prodotti Totali</p>
+      </div>
+      <div class="stat-card">
+        <h3 id="total-users">0</h3>
+        <p>Utenti Totali</p>
+      </div>
+      <div class="stat-card">
+        <h3 id="total-admins">0</h3>
+        <p>Admin</p>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="admin-tabs">
+      <button class="admin-tab active" data-tab="products">
+        Gestione Prodotti
+      </button>
+      <button class="admin-tab" data-tab="users">Gestione Utenti</button>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="admin-content">
+      <!-- Products Section -->
+      <div id="products-section" class="admin-section-content active">
+        <div class="section-header">
+          <h2>Gestione Prodotti</h2>
+          <button class="btn btn-primary" id="addProductBtn">
+            Aggiungi Prodotto
+          </button>
+        </div>
+        <div id="prodotti-list" class="items-grid"></div>
+      </div>
+
+      <!-- Users Section -->
+      <div id="users-section" class="admin-section-content">
+        <div class="section-header">
+          <h2>Gestione Utenti</h2>
+        </div>
+        <div id="utenti-list" class="items-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Product Modal -->
+  <div id="productModal" class="modal">
+    <div class="modal-content">
+      <span class="modal-close" id="closeProductModal">&times;</span>
+      <h2 id="productModalTitle">Aggiungi Prodotto</h2>
+      <form id="productForm">
+        <input type="hidden" id="product-id" />
+
+        <div class="form-group">
+          <label for="product-titolo">Titolo</label>
+          <input type="text" id="product-titolo" required />
+        </div>
+
+        <div class="form-group">
+          <label for="product-descrizione">Descrizione</label>
+          <textarea id="product-descrizione" rows="3" required></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="product-autore">Autore</label>
+          <input type="text" id="product-autore" value="sconosciuto" required />
+        </div>
+
+        <div class="form-group">
+          <label for="product-prezzo">Prezzo (€)</label>
+          <input type="number" id="product-prezzo" step="0.01" required />
+        </div>
+
+        <div class="form-group">
+          <label for="product-image">URL Immagine</label>
+          <input type="text" id="product-image" />
+        </div>
+
+        <div class="form-group">
+          <label for="product-categoria">Categoria</label>
+          <select id="product-categoria">
+            <option value="">Seleziona categoria</option>
+          </select>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Salva</button>
+          <button type="button" class="btn btn-secondary" id="cancelProductBtn">
+            Annulla
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- User Modal -->
+  <div id="userModal" class="modal">
+    <div class="modal-content">
+      <span class="modal-close" id="closeUserModal">&times;</span>
+      <h2>Dettagli Utente</h2>
+      <div id="userDetail"></div>
+    </div>
+  </div>
+</section>

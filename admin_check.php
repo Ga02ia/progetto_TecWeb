@@ -9,8 +9,8 @@ if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
     exit();
 }
 
-// Verifica che l'utente sia admin
-if (!isset($_SESSION['ruolo']) || $_SESSION['ruolo'] != 1) {
+// Verifica che l'utente sia admin (confronta sia come stringa che come intero)
+if (!isset($_SESSION['ruolo']) || ($_SESSION['ruolo'] != 1 && $_SESSION['ruolo'] !== '1')) {
     http_response_code(403);
     echo json_encode(["error" => "Accesso negato. Solo gli amministratori possono accedere a questa risorsa."]);
     exit();

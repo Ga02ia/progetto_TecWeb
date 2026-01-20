@@ -1,0 +1,33 @@
+<!-- DETTAGLIO PRODOTTO -->
+<section class="product-detail-section">
+  <div class="container">
+    <a href="/prodotti" data-link class="back-link">← Torna ai prodotti</a>
+
+    <div class="product-detail-container" id="productDetailContainer">
+      <div class="loading-spinner">Caricamento prodotto...</div>
+    </div>
+  </div>
+</section>
+
+<!-- CART MODAL -->
+<div
+  class="cart-modal"
+  id="cartModal"
+  aria-hidden="true"
+  role="dialog"
+  style="display: none"
+>
+  <div class="cart-modal-overlay" data-close="true"></div>
+  <div class="cart-modal-content">
+    <button class="cart-modal-close" data-close="true" aria-label="Chiudi">
+      ✕
+    </button>
+    <h3>Prodotto aggiunto al carrello!</h3>
+    <div class="cart-modal-actions">
+      <button class="btn btn-outline" data-close="true">
+        Continua lo shopping
+      </button>
+      <a href="/carrello" data-link class="btn">Vai al carrello</a>
+    </div>
+  </div>
+</div>

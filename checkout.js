@@ -1,5 +1,7 @@
 // Gestione pagina checkout
-document.addEventListener("DOMContentLoaded", function () {
+function initCheckoutPage() {
+  console.log("🛒 Inizializzazione checkout page");
+
   const checkoutForm = document.getElementById("checkoutForm");
   const orderItems = document.getElementById("orderItems");
   const orderSubtotal = document.getElementById("orderSubtotal");
@@ -7,22 +9,45 @@ document.addEventListener("DOMContentLoaded", function () {
   const orderTotal = document.getElementById("orderTotal");
   const submitBtn = document.getElementById("submitOrder");
 
+  console.log("📦 Elementi trovati:", {
+    checkoutForm: !!checkoutForm,
+    orderItems: !!orderItems,
+    orderSubtotal: !!orderSubtotal,
+    orderShipping: !!orderShipping,
+    orderTotal: !!orderTotal,
+    submitBtn: !!submitBtn,
+  });
+
+  if (
+    !checkoutForm ||
+    !orderItems ||
+    !orderSubtotal ||
+    !orderShipping ||
+    !orderTotal ||
+    !submitBtn
+  ) {
+    console.error("❌ Elementi del checkout non trovati nel DOM");
+    // Mostra tutti gli ID presenti nel DOM
+    const allIds = Array.from(document.querySelectorAll("[id]")).map(
+      (el) => el.id,
+    );
+    console.log("🔍 ID presenti nel DOM:", allIds);
+    return;
+  }
+
   let cart = [];
   const FREE_SHIPPING_THRESHOLD = 50;
 
   // Carica il carrello
   function loadCart() {
-    const savedCart = localStorage.getItem("artly_cart");
-    if (savedCart) {
-      try {
-        cart = JSON.parse(savedCart);
-      } catch (e) {
-        cart = [];
-      }
-    }
+    // Usa lo store invece di localStorage direttamente
+    cart = store.getCart();
+
+    console.log("🛍️ Carrello caricato:", cart);
 
     if (cart.length === 0) {
-      window.location.href = "carrello.html";
+      showToast("Il carrello è vuoto");
+      router.navigate("/carrello");
       return;
     }
 
@@ -32,23 +57,37 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Carica i dati utente se loggato
   function loadUserData() {
+    console.log("👤 Caricamento dati utente...");
     fetch("check_session.php")
       .then((response) => response.json())
       .then((data) => {
+        console.log("📥 Dati utente ricevuti:", data);
         if (data.authenticated) {
           // Pre-compila i campi con i dati utente
-          document.getElementById("nome").value = data.nome || "";
-          document.getElementById("cognome").value = data.cognome || "";
-          document.getElementById("email").value = data.email || "";
+          if (data.nome) document.getElementById("nome").value = data.nome;
+          if (data.cognome)
+            document.getElementById("cognome").value = data.cognome;
+          if (data.email) document.getElementById("email").value = data.email;
+          if (data.telefono)
+            document.getElementById("telefono").value = data.telefono;
+          if (data.via) document.getElementById("via").value = data.via;
+          if (data.citta) document.getElementById("citta").value = data.citta;
+          if (data.provincia)
+            document.getElementById("provincia").value = data.provincia;
+          if (data.cap) document.getElementById("cap").value = data.cap;
+          console.log("✅ Campi pre-compilati con successo");
+        } else {
+          console.log("⚠️ Utente non autenticato");
         }
       })
       .catch((error) => {
-        console.error("Errore caricamento dati utente:", error);
+        console.error("❌ Errore caricamento dati utente:", error);
       });
   }
 
   // Visualizza il riepilogo ordine
   function displayOrderSummary() {
+    console.log("📋 Visualizzazione riepilogo ordine...");
     orderItems.innerHTML = "";
 
     cart.forEach((item) => {
@@ -69,6 +108,7 @@ document.addEventListener("DOMContentLoaded", function () {
       orderItems.appendChild(itemDiv);
     });
 
+    console.log("✅ Articoli visualizzati:", cart.length);
     updateTotals();
   }
 
@@ -85,6 +125,8 @@ document.addEventListener("DOMContentLoaded", function () {
     orderShipping.textContent =
       shipping === 0 ? "Gratis" : `€${shipping.toFixed(2).replace(".", ",")}`;
     orderTotal.textContent = `€${total.toFixed(2).replace(".", ",")}`;
+
+    console.log("💰 Totali aggiornati:", { subtotal, shipping, total });
   }
 
   // Submit dell'ordine
@@ -174,8 +216,8 @@ document.addEventListener("DOMContentLoaded", function () {
       .then((response) => response.json())
       .then((data) => {
         if (data.success) {
-          // Svuota il carrello
-          localStorage.removeItem("artly_cart");
+          // Svuota il carrello usando lo store
+          store.clearCart();
 
           // Salva i dati dell'ordine per la pagina di conferma
           localStorage.setItem(
@@ -188,7 +230,7 @@ document.addEventListener("DOMContentLoaded", function () {
           );
 
           // Redirect alla pagina di successo
-          window.location.href = "order-success.html";
+          router.navigate("/order-success");
         } else {
           showToast(data.message || "Errore durante la creazione dell'ordine");
           submitBtn.textContent = "Completa l'ordine";
@@ -205,4 +247,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Inizializza
   loadCart();
-});
+}
+
+window.initCheckoutPage = initCheckoutPage;

@@ -1,5 +1,9 @@
 // Verifica autenticazione all'avvio
-checkAuthAndLoadProfile();
+function initProfiloPage() {
+  checkAuthAndLoadProfile();
+}
+
+window.initProfiloPage = initProfiloPage;
 
 function checkAuthAndLoadProfile() {
   fetch("check_session.php")

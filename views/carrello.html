@@ -1,0 +1,86 @@
+<!-- HERO CARRELLO -->
+<section class="hero-simple hero-cart">
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <h1>Il tuo carrello</h1>
+    <p>Rivedi i tuoi articoli prima di procedere all'acquisto</p>
+  </div>
+</section>
+
+<!-- CONTENUTO CARRELLO -->
+<section class="section cart-section">
+  <div class="container">
+    <div class="cart-layout">
+      <!-- LISTA PRODOTTI -->
+      <div class="cart-items-container">
+        <div class="cart-header">
+          <h2>Articoli nel carrello (<span id="cartItemsCount">0</span>)</h2>
+          <button class="btn-text" id="clearCartBtn">Svuota carrello</button>
+        </div>
+
+        <!-- Messaggio carrello vuoto -->
+        <div class="cart-empty" id="cartEmpty" style="display: none">
+          <div class="empty-icon">🛒</div>
+          <h3>Il tuo carrello è vuoto</h3>
+          <p>Aggiungi alcuni prodotti per iniziare!</p>
+          <a href="/prodotti" data-link class="btn">Vai ai prodotti</a>
+        </div>
+
+        <!-- Lista articoli -->
+        <div class="cart-items-list" id="cartItemsList">
+          <!-- Gli articoli verranno aggiunti dinamicamente qui -->
+        </div>
+      </div>
+
+      <!-- RIEPILOGO ORDINE -->
+      <div class="cart-summary">
+        <h3>Riepilogo ordine</h3>
+
+        <div class="summary-row">
+          <span>Subtotale</span>
+          <span id="subtotal">€0.00</span>
+        </div>
+
+        <div class="summary-row">
+          <span>Spedizione</span>
+          <span id="shipping">€4.90</span>
+        </div>
+
+        <div
+          class="summary-row summary-discount"
+          id="discountRow"
+          style="display: none"
+        >
+          <span>Sconto</span>
+          <span id="discount">-€0.00</span>
+        </div>
+
+        <div class="summary-divider"></div>
+
+        <div class="summary-row summary-total">
+          <span>Totale</span>
+          <span id="total">€0.00</span>
+        </div>
+
+        <a href="/checkout" data-link class="btn btn-checkout" id="checkoutBtn">
+          Procedi all'acquisto
+        </a>
+
+        <div class="payment-icons">
+          <span>💳</span>
+          <span>🔒</span>
+          <span>✅</span>
+        </div>
+        <p class="payment-info">Pagamento sicuro e protetto</p>
+      </div>
+    </div>
+
+    <!-- PRODOTTI CONSIGLIATI -->
+    <div class="recommended-section">
+      <h2>Potrebbero interessarti anche</h2>
+      <div class="products-grid" id="recommendedProducts">
+        <!-- Prodotti consigliati verranno caricati qui -->
+      </div>
+    </div>
+  </div>
+</section>

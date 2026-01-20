@@ -5,42 +5,32 @@ let allProducts = [];
 let allUsers = [];
 let allCategories = [];
 
-// Inizializzazione
-document.addEventListener("DOMContentLoaded", async () => {
-  await checkAuth();
+// Funzione di inizializzazione principale
+async function initAdminPage() {
+  console.log("🔧 Inizializzazione Admin Dashboard...");
+
+  // Ottieni dati utente dallo store
+  const user = store.getUser();
+  if (user) {
+    console.log("👤 Admin:", user.nome, user.cognome);
+    currentUser = user;
+  }
+
   await loadCategories();
   await loadDashboardData();
   setupNavigation();
   setupProductForm();
-});
-
-// Verifica autenticazione e permessi admin
-async function checkAuth() {
-  try {
-    const response = await fetch("check_session.php");
-    const data = await response.json();
-
-    if (!data.authenticated) {
-      window.location.href = "login.html";
-      return;
-    }
-
-    if (!data.is_admin) {
-      alert(
-        "Accesso negato. Solo gli amministratori possono accedere a questa pagina.",
-      );
-      window.location.href = "home.html";
-      return;
-    }
-
-    currentUser = data;
-    document.getElementById("admin-info").textContent =
-      `${data.nome} ${data.cognome} (${data.email})`;
-  } catch (error) {
-    console.error("Errore verifica autenticazione:", error);
-    window.location.href = "login.html";
-  }
 }
+
+// Esponi globalmente per la SPA
+window.initAdminPage = initAdminPage;
+
+// Inizializzazione per compatibilità con vecchio modo
+document.addEventListener("DOMContentLoaded", async () => {
+  if (document.getElementById("admin-dashboard")) {
+    await initAdminPage();
+  }
+});
 
 // Carica categorie
 async function loadCategories() {
@@ -58,6 +48,10 @@ async function loadCategories() {
 
 function populateCategorySelect() {
   const select = document.getElementById("product-categoria");
+  if (!select) {
+    console.warn("⚠️ Select categoria non trovato");
+    return;
+  }
   select.innerHTML = '<option value="">Seleziona categoria</option>';
   allCategories.forEach((cat) => {
     const option = document.createElement("option");
@@ -74,13 +68,17 @@ async function loadDashboardData() {
 }
 
 function updateDashboardStats() {
-  document.getElementById("total-products").textContent = allProducts.length;
-  document.getElementById("total-users").textContent = allUsers.length;
-  document.getElementById("total-admins").textContent = allUsers.filter(
-    (u) => u.ruolo == 1,
-  ).length;
-  // Blocked sarà sempre 0 finché non aggiungi la colonna nel DB
-  document.getElementById("total-blocked").textContent = "0";
+  const totalProducts = document.getElementById("total-products");
+  const totalUsers = document.getElementById("total-users");
+  const totalAdmins = document.getElementById("total-admins");
+  const totalBlocked = document.getElementById("total-blocked");
+
+  if (totalProducts) totalProducts.textContent = allProducts.length;
+  if (totalUsers) totalUsers.textContent = allUsers.length;
+  if (totalAdmins)
+    totalAdmins.textContent = allUsers.filter((u) => u.ruolo == 1).length;
+  if (totalBlocked)
+    totalBlocked.textContent = allUsers.filter((u) => u.blocked == 1).length;
 }
 
 // ===== GESTIONE PRODOTTI =====
@@ -104,6 +102,11 @@ async function loadProducts() {
 
 function displayProducts() {
   const container = document.getElementById("prodotti-list");
+
+  if (!container) {
+    console.warn("⚠️ Container prodotti-list non trovato");
+    return;
+  }
 
   if (allProducts.length === 0) {
     container.innerHTML =
@@ -178,56 +181,59 @@ function closeProductModal() {
 }
 
 function setupProductForm() {
-  document
-    .getElementById("productForm")
-    .addEventListener("submit", async (e) => {
-      e.preventDefault();
+  const productForm = document.getElementById("productForm");
+  if (!productForm) {
+    console.warn("⚠️ Product form non trovato");
+    return;
+  }
 
-      const productId = document.getElementById("product-id").value;
-      const productData = {
-        titolo: document.getElementById("product-titolo").value,
-        descrizione: document.getElementById("product-descrizione").value,
-        autore: document.getElementById("product-autore").value,
-        prezzo: document.getElementById("product-prezzo").value,
-        image_path: document.getElementById("product-image").value,
-        id_categoria:
-          document.getElementById("product-categoria").value || null,
-      };
+  productForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-      try {
-        let response;
-        if (productId) {
-          // Modifica (PATCH)
-          productData.id = productId;
-          response = await fetch("admin_prodotti.php", {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(productData),
-          });
-        } else {
-          // Creazione (POST)
-          response = await fetch("admin_prodotti.php", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(productData),
-          });
-        }
+    const productId = document.getElementById("product-id").value;
+    const productData = {
+      titolo: document.getElementById("product-titolo").value,
+      descrizione: document.getElementById("product-descrizione").value,
+      autore: document.getElementById("product-autore").value,
+      prezzo: document.getElementById("product-prezzo").value,
+      image_path: document.getElementById("product-image").value,
+      id_categoria: document.getElementById("product-categoria").value || null,
+    };
 
-        const data = await response.json();
-
-        if (data.success) {
-          alert(data.message);
-          closeProductModal();
-          await loadProducts();
-          updateDashboardStats();
-        } else {
-          alert("Errore: " + data.message);
-        }
-      } catch (error) {
-        console.error("Errore:", error);
-        alert("Errore durante il salvataggio del prodotto");
+    try {
+      let response;
+      if (productId) {
+        // Modifica (PATCH)
+        productData.id = productId;
+        response = await fetch("admin_prodotti.php", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(productData),
+        });
+      } else {
+        // Creazione (POST)
+        response = await fetch("admin_prodotti.php", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(productData),
+        });
       }
-    });
+
+      const data = await response.json();
+
+      if (data.success) {
+        alert(data.message);
+        closeProductModal();
+        await loadProducts();
+        updateDashboardStats();
+      } else {
+        alert("Errore: " + data.message);
+      }
+    } catch (error) {
+      console.error("Errore:", error);
+      alert("Errore durante il salvataggio del prodotto");
+    }
+  });
 }
 
 async function deleteProduct(productId) {
@@ -277,6 +283,11 @@ async function loadUsers() {
 function displayUsers() {
   const container = document.getElementById("utenti-list");
 
+  if (!container) {
+    console.warn("⚠️ Container utenti-list non trovato");
+    return;
+  }
+
   if (allUsers.length === 0) {
     container.innerHTML =
       '<div class="empty-state"><p>Nessun utente trovato</p></div>';
@@ -299,33 +310,40 @@ function displayUsers() {
             <tbody>
     `;
   allUsers.forEach((user) => {
-    const isCurrentUser = user.id == currentUser.id_utente;
+    const isCurrentUser = currentUser && user.id == currentUser.id_utente;
     const roleBadge =
       user.ruolo == 1
         ? '<span class="badge badge-admin">Admin</span>'
         : '<span class="badge badge-user">Utente</span>';
-    const statusBadge = '<span class="badge badge-active">Attivo</span>';
+    const isBlocked = user.blocked == 1;
+    const statusBadge = isBlocked
+      ? '<span class="badge badge-blocked">Bloccato</span>'
+      : '<span class="badge badge-active">Attivo</span>';
 
     html += `
-            <tr>
+            <tr ${isBlocked ? 'class="blocked-user"' : ""}>
                 <td>${user.id}</td>
                 <td>${user.nome} ${user.cognome}</td>
                 <td>${user.mail}</td>
                 <td>${roleBadge}</td>
                 <td>${statusBadge}</td>
                 <td>${user.num_ordini || 0}</td>
-                <td>
-                    <button class="btn btn-view" onclick="viewUserDetail(${user.id})">Dettagli</button>
+                <td class="actions-cell">
                     ${
                       !isCurrentUser
                         ? `
                         ${
                           user.ruolo == 1
-                            ? `<button class="btn btn-edit" onclick="toggleAdminRole(${user.id}, 0)">Rimuovi Admin</button>`
-                            : `<button class="btn btn-admin" onclick="toggleAdminRole(${user.id}, 1)">Rendi Admin</button>`
+                            ? `<button class="btn btn-small btn-secondary" onclick="toggleAdminRole(${user.id}, 0)">Rimuovi Admin</button>`
+                            : `<button class="btn btn-small btn-success" onclick="toggleAdminRole(${user.id}, 1)">Rendi Admin</button>`
+                        }
+                        ${
+                          isBlocked
+                            ? `<button class="btn btn-small btn-success" onclick="toggleBlockUser(${user.id}, 0)">Sblocca</button>`
+                            : `<button class="btn btn-small btn-danger" onclick="toggleBlockUser(${user.id}, 1)">Blocca</button>`
                         }
                     `
-                        : '<span style="color: #7f8c8d;">Tu</span>'
+                        : '<span class="current-user-badge">Tu</span>'
                     }
                 </td>
             </tr>
@@ -508,7 +526,7 @@ async function toggleAdminRole(userId, ruolo) {
 
 function setupNavigation() {
   const tabs = document.querySelectorAll(".admin-tab");
-  const sections = document.querySelectorAll(".admin-section");
+  const sections = document.querySelectorAll(".admin-section-content");
 
   tabs.forEach((tab) => {
     tab.addEventListener("click", (e) => {
@@ -522,10 +540,39 @@ function setupNavigation() {
       tab.classList.add("active");
 
       // Mostra la sezione corrispondente
-      const sectionId = tab.dataset.section;
-      document.getElementById(sectionId).classList.add("active");
+      const tabName = tab.dataset.tab;
+      const sectionId = tabName + "-section";
+      const section = document.getElementById(sectionId);
+      if (section) {
+        section.classList.add("active");
+      }
     });
   });
+
+  // Event listener per pulsante Aggiungi Prodotto
+  const addProductBtn = document.getElementById("addProductBtn");
+  if (addProductBtn) {
+    addProductBtn.addEventListener("click", () => {
+      openAddProductModal();
+    });
+  }
+
+  // Event listener per chiusura modal prodotto
+  const closeProductModalBtn = document.getElementById("closeProductModal");
+  if (closeProductModalBtn) {
+    closeProductModalBtn.addEventListener("click", closeProductModal);
+  }
+
+  const cancelProductBtn = document.getElementById("cancelProductBtn");
+  if (cancelProductBtn) {
+    cancelProductBtn.addEventListener("click", closeProductModal);
+  }
+
+  // Event listener per chiusura modal utente
+  const closeUserModalBtn = document.getElementById("closeUserModal");
+  if (closeUserModalBtn) {
+    closeUserModalBtn.addEventListener("click", closeUserModal);
+  }
 }
 
 // ===== UTILITY =====
@@ -536,7 +583,18 @@ function showError(message) {
 
 function logout() {
   if (confirm("Sei sicuro di voler uscire?")) {
-    window.location.href = "logout.php";
+    // Usa il metodo di logout dell'header component
+    fetch("logout.php")
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          store.logout();
+          router.navigate("/home");
+        }
+      })
+      .catch((error) => {
+        console.error("Errore logout:", error);
+      });
   }
 }
 

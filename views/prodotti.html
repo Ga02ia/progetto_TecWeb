@@ -1,0 +1,121 @@
+<!-- HERO PRODOTTI -->
+<section class="hero-simple hero-products">
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <h1>I nostri Poster</h1>
+    <p>
+      Scopri la nostra collezione di stampe digitali di alta qualità. Ogni
+      poster è pronto per decorare i tuoi spazi.
+    </p>
+  </div>
+</section>
+
+<!-- FILTRI -->
+<section class="filters-section">
+  <div class="container">
+    <div class="filters-bar">
+      <div class="filter-group">
+        <label for="categoryFilter">Categoria:</label>
+        <select id="categoryFilter" class="filter-select">
+          <option value="">Tutte</option>
+          <option value="1">Minimal</option>
+          <option value="2">Geometrico</option>
+          <option value="3">Natura</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="sortFilter">Ordina per:</label>
+        <select id="sortFilter" class="filter-select">
+          <option value="nome">Nome</option>
+          <option value="prezzo-asc">Prezzo crescente</option>
+          <option value="prezzo-desc">Prezzo decrescente</option>
+        </select>
+      </div>
+
+      <div class="search-box">
+        <input
+          type="text"
+          id="productSearch"
+          placeholder="Cerca per titolo o descrizione..."
+          class="search-input"
+        />
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GRIGLIA PRODOTTI -->
+<section class="section">
+  <div class="container">
+    <div class="products-count">
+      <p id="productsCount">Caricamento prodotti...</p>
+    </div>
+
+    <div class="products-grid" id="productsGrid">
+      <!-- I prodotti verranno caricati dinamicamente qui -->
+    </div>
+
+    <div class="loading-message" id="loadingMessage">
+      <p>Caricamento prodotti in corso...</p>
+    </div>
+
+    <div class="error-message" id="errorMessage" style="display: none">
+      <p>Errore nel caricamento dei prodotti. Riprova più tardi.</p>
+    </div>
+
+    <div class="empty-message" id="emptyMessage" style="display: none">
+      <p>Nessun prodotto trovato.</p>
+    </div>
+  </div>
+</section>
+
+<!-- MODALE CARRELLO -->
+<div class="cart-modal" id="cartModal" style="display: none" aria-hidden="true">
+  <div class="cart-modal-overlay" data-close="true"></div>
+  <div
+    class="cart-modal-content"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="cartModalTitle"
+  >
+    <div class="cart-modal-header">
+      <h3 id="cartModalTitle">Carrello</h3>
+      <button class="cart-modal-close" type="button" data-close="true">
+        ✕
+      </button>
+    </div>
+
+    <div class="cart-modal-body">
+      <div class="cart-modal-products-list" id="cartModalProductsList">
+        <!-- I prodotti del carrello verranno inseriti qui dinamicamente -->
+      </div>
+
+      <div class="cart-modal-summary">
+        <div class="cart-modal-row">
+          <span>Articoli</span>
+          <strong id="cartModalItems">0</strong>
+        </div>
+        <div class="cart-modal-row">
+          <span>Subtotale</span>
+          <strong id="cartModalSubtotal">€0,00</strong>
+        </div>
+        <div class="cart-modal-row">
+          <span>Spedizione</span>
+          <strong id="cartModalShipping">€0,00</strong>
+        </div>
+        <div class="cart-modal-row total">
+          <span>Totale</span>
+          <strong id="cartModalTotal">€0,00</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="cart-modal-actions">
+      <button class="btn btn-outline" type="button" data-close="true">
+        Continua lo shopping
+      </button>
+      <a class="btn" href="/carrello" data-link>Vai al carrello</a>
+    </div>
+  </div>
+</div>

@@ -1,5 +1,9 @@
 // Verifica autenticazione e carica preferiti
-checkAuthAndLoadFavorites();
+function initPreferitiPage() {
+  checkAuthAndLoadFavorites();
+}
+
+window.initPreferitiPage = initPreferitiPage;
 
 function checkAuthAndLoadFavorites() {
   fetch("check_session.php")

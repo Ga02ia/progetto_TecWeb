@@ -1,12 +1,23 @@
-// Recupera l'ID del prodotto dall'URL
-const urlParams = new URLSearchParams(window.location.search);
-const productId = urlParams.get("id");
+// Funzione di inizializzazione per SPA
+function initDettaglioProdottoPage(productId) {
+  if (!productId) {
+    // Se non c'è ID, reindirizza alla pagina prodotti
+    window.router.navigate("/prodotti");
+    return;
+  }
 
-if (!productId) {
-  // Se non c'è ID, reindirizza alla pagina prodotti
-  window.location.href = "prodotti.html";
-} else {
   loadProductDetail(productId);
+}
+
+window.initDettaglioProdottoPage = initDettaglioProdottoPage;
+
+// Per compatibilità con vecchio modo (se aperto direttamente)
+if (window.location.search) {
+  const urlParams = new URLSearchParams(window.location.search);
+  const productId = urlParams.get("id");
+  if (productId) {
+    initDettaglioProdottoPage(productId);
+  }
 }
 
 // Carica i dettagli del prodotto

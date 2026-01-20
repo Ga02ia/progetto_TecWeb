@@ -1,0 +1,146 @@
+<!-- CHECKOUT HERO -->
+<section class="hero-simple">
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <h1>Checkout</h1>
+    <p>Completa il tuo ordine</p>
+  </div>
+</section>
+
+<!-- CHECKOUT CONTENT -->
+<section class="section">
+  <div class="container">
+    <div class="checkout-grid">
+      <!-- DATI SPEDIZIONE -->
+      <div class="checkout-main">
+        <div class="checkout-section">
+          <h2>Dati di spedizione</h2>
+          <form id="checkoutForm" class="checkout-form">
+            <div class="form-row two-cols">
+              <div class="form-group">
+                <label for="nome">Nome</label>
+                <input type="text" id="nome" name="nome" required />
+              </div>
+              <div class="form-group">
+                <label for="cognome">Cognome</label>
+                <input type="text" id="cognome" name="cognome" required />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input type="email" id="email" name="email" required />
+            </div>
+
+            <div class="form-group">
+              <label for="telefono">Telefono</label>
+              <input type="tel" id="telefono" name="telefono" required />
+            </div>
+
+            <div class="form-group">
+              <label for="via">Indirizzo</label>
+              <input
+                type="text"
+                id="via"
+                name="via"
+                placeholder="Via, numero civico"
+                required
+              />
+            </div>
+
+            <div class="form-row three-cols">
+              <div class="form-group">
+                <label for="citta">Città</label>
+                <input type="text" id="citta" name="citta" required />
+              </div>
+              <div class="form-group">
+                <label for="provincia">Provincia</label>
+                <input
+                  type="text"
+                  id="provincia"
+                  name="provincia"
+                  maxlength="2"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label for="cap">CAP</label>
+                <input type="text" id="cap" name="cap" maxlength="5" required />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="note">Note aggiuntive (opzionale)</label>
+              <textarea
+                id="note"
+                name="note"
+                rows="3"
+                placeholder="Eventuali istruzioni per la consegna..."
+              ></textarea>
+            </div>
+          </form>
+        </div>
+
+        <!-- METODO DI PAGAMENTO -->
+        <div class="checkout-section">
+          <h2>Metodo di pagamento</h2>
+          <div class="payment-methods">
+            <label class="payment-method-option">
+              <input type="radio" name="payment" value="card" checked />
+              <span>💳 Carta di credito/debito</span>
+            </label>
+            <label class="payment-method-option">
+              <input type="radio" name="payment" value="paypal" />
+              <span>🅿️ PayPal</span>
+            </label>
+            <label class="payment-method-option">
+              <input type="radio" name="payment" value="bank" />
+              <span>🏦 Bonifico bancario</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIEPILOGO ORDINE -->
+      <div class="checkout-sidebar">
+        <div class="checkout-summary">
+          <h3>Riepilogo ordine</h3>
+
+          <div class="checkout-items" id="orderItems">
+            <!-- Gli articoli verranno caricati qui -->
+          </div>
+
+          <div class="summary-divider"></div>
+
+          <div class="summary-row">
+            <span>Subtotale</span>
+            <span id="orderSubtotal">€0.00</span>
+          </div>
+
+          <div class="summary-row">
+            <span>Spedizione</span>
+            <span id="orderShipping">€4.90</span>
+          </div>
+
+          <div class="summary-divider"></div>
+
+          <div class="summary-row summary-total">
+            <span>Totale</span>
+            <strong id="orderTotal">€0.00</strong>
+          </div>
+
+          <button
+            type="submit"
+            class="btn btn-checkout"
+            id="submitOrder"
+            form="checkoutForm"
+          >
+            Completa l'ordine
+          </button>
+
+          <p class="checkout-secure">🔒 Pagamento sicuro e protetto</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
