@@ -3263,12 +3263,45 @@ body.modal-open {
   background: linear-gradient(135deg, var(--accent), #ffd56b);
   padding: 25px 30px;
   color: #050816;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .profile-card-header h2 {
   margin: 0;
   font-size: 1.5rem;
   font-weight: 700;
+}
+
+.profile-actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.edit-profile-btn {
+  background: rgba(5, 8, 22, 0.2);
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #050816;
+}
+
+.edit-profile-btn:hover {
+  background: rgba(5, 8, 22, 0.3);
+  transform: scale(1.05);
+}
+
+.edit-profile-btn svg {
+  width: 20px;
+  height: 20px;
 }
 
 .profile-card-body {
@@ -4029,17 +4062,25 @@ a[data-link] {
   background: rgba(0, 0, 0, 0.8);
   backdrop-filter: blur(4px);
   overflow-y: auto;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal.show {
+  display: flex;
 }
 
 .modal-content {
   background: var(--bg-elevated);
-  margin: 2rem auto;
+  margin: 2rem;
   padding: 2rem;
   border-radius: var(--radius-lg);
   border: 1px solid var(--border-subtle);
   max-width: 600px;
   width: 90%;
   position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
 .modal-close {
@@ -4051,6 +4092,9 @@ a[data-link] {
   cursor: pointer;
   line-height: 1;
   transition: color 0.3s ease;
+  background: none;
+  border: none;
+  padding: 0;
 }
 
 .modal-close:hover {
@@ -4107,13 +4151,84 @@ a[data-link] {
   margin-top: 2rem;
 }
 
+.form-actions .btn-primary,
+.form-actions .btn-secondary {
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  white-space: nowrap;
+}
+
+.form-actions .btn-primary {
+  background: linear-gradient(120deg, var(--accent), #ffd56b);
+  color: #050816;
+  box-shadow: 0 4px 15px rgba(255, 122, 60, 0.4);
+}
+
+.form-actions .btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 122, 60, 0.6);
+  filter: brightness(1.05);
+}
+
 .btn-secondary {
   background: var(--bg-soft);
   color: var(--text);
+  border: 1px solid var(--border-subtle);
 }
 
 .btn-secondary:hover {
-  background: var(--border-subtle);
+  background: var(--bg-elevated);
+  border-color: rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
+}
+
+/* Form Row per layout a due colonne */
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.form-row .form-group {
+  margin-bottom: 0;
+}
+
+/* Modal Header */
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.modal-header h2 {
+  margin: 0;
+}
+
+/* Success Message */
+.success-message {
+  padding: 1rem;
+  background: rgba(52, 199, 89, 0.15);
+  color: #34c759;
+  border-radius: 8px;
+  margin-top: 1rem;
+  text-align: center;
+}
+
+/* Error Message */
+.error-message {
+  padding: 1rem;
+  background: rgba(255, 59, 48, 0.15);
+  color: #ff3b30;
+  border-radius: 8px;
+  margin-top: 1rem;
+  text-align: center;
 }
 
 @media (max-width: 768px) {
@@ -4220,6 +4335,25 @@ table tbody tr.blocked-user {
 .badge-blocked {
   background: rgba(255, 59, 48, 0.15);
   color: #ff3b30;
+}
+
+.badge-category {
+  background: rgba(94, 92, 230, 0.15);
+  color: #5e5ce6;
+  padding: 0.35rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  letter-spacing: 0.5px;
+  display: inline-block;
+}
+
+.badge-category.no-category {
+  background: rgba(142, 142, 147, 0.15);
+  color: #8e8e93;
+  font-style: italic;
+  text-transform: none;
 }
 
 /* Action buttons in table */
@@ -4329,4 +4463,115 @@ table tbody tr.blocked-user {
 .orders-list h4 {
   margin-bottom: 1rem;
   color: var(--text);
+}
+
+/* Password Management Styles */
+
+.forgot-password-link {
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 0.9rem;
+  display: inline-block;
+  margin-top: 1rem;
+  transition: color 0.2s ease;
+}
+
+.forgot-password-link:hover {
+  color: var(--accent-soft);
+  text-decoration: underline;
+}
+
+.security-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 2rem;
+  margin-top: 2rem;
+}
+
+.security-card h3 {
+  margin-bottom: 1.5rem;
+  color: var(--text);
+  font-size: 1.5rem;
+}
+
+#changePasswordForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 500px;
+}
+
+#changePasswordForm .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+#changePasswordForm label {
+  color: var(--text-soft);
+  font-size: 0.9rem;
+}
+
+#changePasswordForm input[type="password"] {
+  background: var(--bg-soft);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1rem;
+  color: var(--text);
+  font-size: 1rem;
+  transition: all 0.2s ease;
+}
+
+#changePasswordForm input[type="password"]:focus {
+  outline: none;
+  border-color: var(--accent);
+  background: var(--bg-elevated);
+}
+
+#changePasswordForm .btn {
+  margin-top: 0.5rem;
+  align-self: flex-start;
+}
+
+#passwordError,
+#passwordSuccess {
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+#passwordError {
+  background: rgba(239, 68, 68, 0.1);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+#passwordSuccess {
+  background: rgba(34, 197, 94, 0.1);
+  color: #4ade80;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+/* Reset Password Modal Specific Styles */
+
+#resetPasswordError,
+#resetPasswordSuccess {
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+#resetPasswordError {
+  background: rgba(239, 68, 68, 0.1);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+#resetPasswordSuccess {
+  background: rgba(34, 197, 94, 0.1);
+  color: #4ade80;
+  border: 1px solid rgba(34, 197, 94, 0.3);
 }

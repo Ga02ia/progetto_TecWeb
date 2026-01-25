@@ -386,6 +386,7 @@ async function initCheckoutView() {
 // Controller per il login
 function initLoginView() {
   initPasswordToggles();
+  setupForgotPasswordModal();
 
   const loginForm = document.getElementById("loginForm");
   if (!loginForm) return;
@@ -629,4 +630,113 @@ function migrateCartStorage() {
   } catch (error) {
     console.error("❌ Errore durante la pulizia dello storage:", error);
   }
+}
+
+// Setup modal recupero password
+function setupForgotPasswordModal() {
+  const forgotLink = document.getElementById("forgotPasswordLink");
+  const modal = document.getElementById("forgotPasswordModal");
+  const closeBtn = document.getElementById("closeForgotPasswordModal");
+  const cancelBtn = document.getElementById("cancelResetBtn");
+  const form = document.getElementById("forgotPasswordForm");
+
+  if (!forgotLink || !modal) return;
+
+  // Apri modal e precompila email
+  forgotLink.addEventListener("click", (e) => {
+    e.preventDefault();
+
+    // Precompila l'email se presente nel form di login
+    const loginEmail = document.getElementById("loginEmail");
+    const resetEmail = document.getElementById("resetEmail");
+    if (loginEmail && resetEmail && loginEmail.value.trim()) {
+      resetEmail.value = loginEmail.value.trim();
+    }
+
+    modal.style.display = "flex";
+  });
+
+  // Chiudi modal
+  const closeModal = () => {
+    modal.style.display = "none";
+    form.reset();
+    document.getElementById("resetErrorMessage").style.display = "none";
+    document.getElementById("resetSuccessMessage").style.display = "none";
+  };
+
+  closeBtn.addEventListener("click", closeModal);
+  cancelBtn.addEventListener("click", closeModal);
+
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) closeModal();
+  });
+
+  // Submit form
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const errorMsg = document.getElementById("resetErrorMessage");
+    const successMsg = document.getElementById("resetSuccessMessage");
+    errorMsg.style.display = "none";
+    successMsg.style.display = "none";
+
+    const email = document.getElementById("resetEmail").value.trim();
+    const newPassword = document.getElementById("resetNewPassword").value;
+    const confirmPassword = document.getElementById(
+      "resetConfirmPassword",
+    ).value;
+
+    // Validazione
+    if (!email || !email.includes("@")) {
+      errorMsg.textContent = "Inserisci un'email valida";
+      errorMsg.style.display = "block";
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      errorMsg.textContent = "La password deve essere di almeno 6 caratteri";
+      errorMsg.style.display = "block";
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      errorMsg.textContent = "Le password non coincidono";
+      errorMsg.style.display = "block";
+      return;
+    }
+
+    try {
+      const response = await fetch("reset_password.php", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: email,
+          newPassword: newPassword,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        successMsg.textContent =
+          "Password modificata con successo! Puoi effettuare il login.";
+        successMsg.style.display = "block";
+
+        // Chiudi modal dopo 2 secondi
+        setTimeout(() => {
+          closeModal();
+        }, 2000);
+      } else {
+        errorMsg.textContent =
+          data.message || "Errore durante il reset della password";
+        errorMsg.style.display = "block";
+      }
+    } catch (error) {
+      console.error("Errore:", error);
+      errorMsg.textContent = "Errore di connessione al server";
+      errorMsg.style.display = "block";
+    }
+  });
 }

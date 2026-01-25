@@ -1,6 +1,10 @@
 // Verifica autenticazione all'avvio
+let currentUserData = null;
+
 function initProfiloPage() {
   checkAuthAndLoadProfile();
+  setupEditProfileModal();
+  setupChangePasswordModal();
 }
 
 window.initProfiloPage = initProfiloPage;
@@ -14,6 +18,8 @@ function checkAuthAndLoadProfile() {
         window.location.href = "login.html";
         return;
       }
+      // Salva i dati utente
+      currentUserData = data;
       // Carica i dati del profilo
       loadUserProfile(data);
       loadUserOrders();
@@ -36,6 +42,134 @@ function loadUserProfile(userData) {
   document.getElementById("userProvincia").textContent =
     userData.provincia || "-";
   document.getElementById("userCap").textContent = userData.cap || "-";
+}
+
+// Setup modale di modifica profilo
+function setupEditProfileModal() {
+  const editBtn = document.getElementById("editProfileBtn");
+  const modal = document.getElementById("editProfileModal");
+  const closeBtn = document.getElementById("closeEditModal");
+  const cancelBtn = document.getElementById("cancelEditBtn");
+  const form = document.getElementById("editProfileForm");
+
+  // Apri modale
+  editBtn.addEventListener("click", () => {
+    openEditModal();
+  });
+
+  // Chiudi modale
+  closeBtn.addEventListener("click", closeEditModal);
+  cancelBtn.addEventListener("click", closeEditModal);
+
+  // Chiudi cliccando fuori dalla modale
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) {
+      closeEditModal();
+    }
+  });
+
+  // Submit form
+  form.addEventListener("submit", handleProfileUpdate);
+}
+
+// Apri modale e popola i campi
+function openEditModal() {
+  const modal = document.getElementById("editProfileModal");
+
+  // Popola i campi con i dati attuali
+  if (currentUserData) {
+    document.getElementById("editNome").value = currentUserData.nome || "";
+    document.getElementById("editCognome").value =
+      currentUserData.cognome || "";
+    document.getElementById("editEmail").value = currentUserData.email || "";
+    document.getElementById("editTelefono").value =
+      currentUserData.telefono || "";
+    document.getElementById("editVia").value = currentUserData.via || "";
+    document.getElementById("editCitta").value = currentUserData.citta || "";
+    document.getElementById("editProvincia").value =
+      currentUserData.provincia || "";
+    document.getElementById("editCap").value = currentUserData.cap || "";
+  }
+
+  // Reset messaggi
+  document.getElementById("editErrorMessage").style.display = "none";
+  document.getElementById("editSuccessMessage").style.display = "none";
+
+  modal.style.display = "flex";
+}
+
+// Chiudi modale
+function closeEditModal() {
+  const modal = document.getElementById("editProfileModal");
+  modal.style.display = "none";
+}
+
+// Gestisci aggiornamento profilo
+async function handleProfileUpdate(e) {
+  e.preventDefault();
+
+  const errorMsg = document.getElementById("editErrorMessage");
+  const successMsg = document.getElementById("editSuccessMessage");
+  errorMsg.style.display = "none";
+  successMsg.style.display = "none";
+
+  // Raccogli i dati dal form
+  const formData = {
+    nome: document.getElementById("editNome").value.trim(),
+    cognome: document.getElementById("editCognome").value.trim(),
+    mail: document.getElementById("editEmail").value.trim(),
+    telefono: document.getElementById("editTelefono").value.trim(),
+    via: document.getElementById("editVia").value.trim(),
+    citta: document.getElementById("editCitta").value.trim(),
+    provincia: document
+      .getElementById("editProvincia")
+      .value.trim()
+      .toUpperCase(),
+    cap: document.getElementById("editCap").value.trim(),
+  };
+
+  // Aggiungi password solo se è stata inserita
+  const password = document.getElementById("editPassword").value;
+  if (password) {
+    formData.password = password;
+  }
+
+  // Validazione base
+  if (!formData.nome || !formData.cognome || !formData.mail) {
+    errorMsg.textContent = "Nome, cognome ed email sono obbligatori";
+    errorMsg.style.display = "block";
+    return;
+  }
+
+  try {
+    const response = await fetch("update_profile.php", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formData),
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      successMsg.textContent = "Profilo aggiornato con successo!";
+      successMsg.style.display = "block";
+
+      // Ricarica i dati del profilo
+      setTimeout(() => {
+        closeEditModal();
+        checkAuthAndLoadProfile();
+      }, 1500);
+    } else {
+      errorMsg.textContent = data.message || "Errore durante l'aggiornamento";
+      errorMsg.style.display = "block";
+    }
+  } catch (error) {
+    console.error("Errore:", error);
+    errorMsg.textContent = "Errore di connessione al server";
+    errorMsg.style.display = "block";
+  }
 }
 
 // Carica lo storico ordini
@@ -190,4 +324,121 @@ function reorderItems(orderId) {
       console.error("Errore nel riordino:", error);
       showToast("Errore nel riordino");
     });
+}
+
+// Setup modale cambio password
+function setupChangePasswordModal() {
+  const changePasswordBtn = document.getElementById("changePasswordBtn");
+  const modal = document.getElementById("changePasswordModal");
+  const closeBtn = document.getElementById("closeChangePasswordModal");
+  const cancelBtn = document.getElementById("cancelChangePasswordBtn");
+  const form = document.getElementById("changePasswordForm");
+
+  // Apri modale
+  changePasswordBtn.addEventListener("click", () => {
+    openChangePasswordModal();
+  });
+
+  // Chiudi modale
+  closeBtn.addEventListener("click", closeChangePasswordModal);
+  cancelBtn.addEventListener("click", closeChangePasswordModal);
+
+  // Chiudi cliccando fuori dalla modale
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) {
+      closeChangePasswordModal();
+    }
+  });
+
+  // Submit form
+  form.addEventListener("submit", handleChangePassword);
+}
+
+// Apri modale cambio password
+function openChangePasswordModal() {
+  const modal = document.getElementById("changePasswordModal");
+
+  // Precompila email con i dati dell'utente
+  if (currentUserData && currentUserData.email) {
+    document.getElementById("changePasswordEmail").value =
+      currentUserData.email;
+  }
+
+  // Reset campi password
+  document.getElementById("changePasswordNew").value = "";
+  document.getElementById("changePasswordConfirm").value = "";
+
+  // Reset messaggi
+  document.getElementById("changePasswordError").style.display = "none";
+  document.getElementById("changePasswordSuccess").style.display = "none";
+
+  modal.style.display = "flex";
+}
+
+// Chiudi modale cambio password
+function closeChangePasswordModal() {
+  const modal = document.getElementById("changePasswordModal");
+  modal.style.display = "none";
+}
+
+// Gestisci cambio password
+async function handleChangePassword(e) {
+  e.preventDefault();
+
+  const errorMsg = document.getElementById("changePasswordError");
+  const successMsg = document.getElementById("changePasswordSuccess");
+  errorMsg.style.display = "none";
+  successMsg.style.display = "none";
+
+  const email = document.getElementById("changePasswordEmail").value;
+  const newPassword = document.getElementById("changePasswordNew").value;
+  const confirmPassword = document.getElementById(
+    "changePasswordConfirm",
+  ).value;
+
+  // Validazione
+  if (newPassword.length < 6) {
+    errorMsg.textContent = "La password deve essere di almeno 6 caratteri";
+    errorMsg.style.display = "block";
+    return;
+  }
+
+  if (newPassword !== confirmPassword) {
+    errorMsg.textContent = "Le password non coincidono";
+    errorMsg.style.display = "block";
+    return;
+  }
+
+  try {
+    const response = await fetch("reset_password.php", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: email,
+        newPassword: newPassword,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      successMsg.textContent = "Password modificata con successo!";
+      successMsg.style.display = "block";
+
+      // Reset form e chiudi modale dopo 2 secondi
+      setTimeout(() => {
+        closeChangePasswordModal();
+      }, 2000);
+    } else {
+      errorMsg.textContent =
+        data.message || "Errore durante il cambio password";
+      errorMsg.style.display = "block";
+    }
+  } catch (error) {
+    console.error("Errore:", error);
+    errorMsg.textContent = "Errore di connessione al server";
+    errorMsg.style.display = "block";
+  }
 }

@@ -38,7 +38,7 @@ async function loadCategories() {
     const response = await fetch("get_categorie.php");
     const data = await response.json();
     if (data.success) {
-      allCategories = data.categorie;
+      allCategories = data.data; // Corretto da data.categorie a data.data
       populateCategorySelect();
     }
   } catch (error) {
@@ -52,7 +52,16 @@ function populateCategorySelect() {
     console.warn("⚠️ Select categoria non trovato");
     return;
   }
-  select.innerHTML = '<option value="">Seleziona categoria</option>';
+  select.innerHTML = '<option value="">-- Seleziona una categoria --</option>';
+
+  if (allCategories.length === 0) {
+    select.innerHTML =
+      '<option value="">Nessuna categoria disponibile</option>';
+    select.disabled = true;
+    return;
+  }
+
+  select.disabled = false;
   allCategories.forEach((cat) => {
     const option = document.createElement("option");
     option.value = cat.id;
@@ -130,11 +139,15 @@ function displayProducts() {
     `;
 
   allProducts.forEach((product) => {
+    const categoriaBadge = product.categoria_nome
+      ? `<span class="badge-category">${product.categoria_nome}</span>`
+      : '<span class="badge-category no-category">Senza categoria</span>';
+
     html += `
             <tr>
                 <td>${product.id}</td>
                 <td>${product.titolo}</td>
-                <td>${product.categoria_nome || "N/A"}</td>
+                <td>${categoriaBadge}</td>
                 <td>€${parseFloat(product.prezzo).toFixed(2)}</td>
                 <td>${product.autore}</td>
                 <td>
@@ -155,6 +168,10 @@ function openAddProductModal() {
   document.getElementById("product-id").value = "";
   document.getElementById("productForm").reset();
   document.getElementById("product-autore").value = "sconosciuto";
+
+  // Ripopola le categorie per essere sicuri che siano aggiornate
+  populateCategorySelect();
+
   document.getElementById("productModal").style.display = "block";
 }
 
@@ -170,6 +187,11 @@ function openEditProductModal(productId) {
   document.getElementById("product-autore").value = product.autore;
   document.getElementById("product-prezzo").value = product.prezzo;
   document.getElementById("product-image").value = product.image_path;
+
+  // Ripopola le categorie per essere sicuri che siano aggiornate
+  populateCategorySelect();
+
+  // Imposta la categoria selezionata
   document.getElementById("product-categoria").value =
     product.id_categoria || "";
 
@@ -191,20 +213,22 @@ function setupProductForm() {
     e.preventDefault();
 
     const productId = document.getElementById("product-id").value;
+    const categoriaValue = document.getElementById("product-categoria").value;
+
     const productData = {
       titolo: document.getElementById("product-titolo").value,
       descrizione: document.getElementById("product-descrizione").value,
       autore: document.getElementById("product-autore").value,
-      prezzo: document.getElementById("product-prezzo").value,
+      prezzo: parseFloat(document.getElementById("product-prezzo").value),
       image_path: document.getElementById("product-image").value,
-      id_categoria: document.getElementById("product-categoria").value || null,
+      id_categoria: categoriaValue ? parseInt(categoriaValue) : null,
     };
 
     try {
       let response;
       if (productId) {
         // Modifica (PATCH)
-        productData.id = productId;
+        productData.id = parseInt(productId);
         response = await fetch("admin_prodotti.php", {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },

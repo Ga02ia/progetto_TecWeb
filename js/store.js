@@ -150,7 +150,7 @@ class Store {
   setUser(userData) {
     this.setState({
       user: userData,
-      isAuthenticated: !!userData,
+      isAuthenticated: !!userData, // !! trasforma in booleano
     });
   }
 
