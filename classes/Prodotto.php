@@ -37,43 +37,37 @@ class Prodotto {
      * Carica i dati del prodotto dal database
      * @return bool - true se il prodotto esiste, false altrimenti
      */
-    public function carica() {
-        if ($this->id === null) {
-            return false;
-        }
+ public function carica() {
+    if ($this->id === null) return false;
 
-        $sql = "SELECT 
-                    p.id, 
-                    p.titolo, 
-                    p.descrizione, 
-                    p.autore, 
-                    p.prezzo, 
-                    p.image_path,
-                    p.id_categoria,
-                    c.nome as categoria_nome
-                FROM posters p
-                LEFT JOIN categorie c ON p.id_categoria = c.id
-                WHERE p.id = :id";
-        
-        $stmt = $this->conn->prepare($sql);
-        $stmt->bindParam(':id', $this->id, PDO::PARAM_INT);
-        $stmt->execute();
-        
-        $data = $stmt->fetch(PDO::FETCH_ASSOC);
-        
-        if ($data) {
-            $this->titolo = $data['titolo'];
-            $this->descrizione = $data['descrizione'];
-            $this->autore = $data['autore'];
-            $this->prezzo = $data['prezzo'];
-            $this->image_path = $data['image_path'];
-            $this->id_categoria = $data['id_categoria'];
-            $this->categoria_nome = $data['categoria_nome'];
-            return true;
-        }
-        
+    $sql = "SELECT p.id, p.titolo, p.descrizione, p.autore, p.prezzo, p.image_path,
+                   p.id_categoria, c.nome as categoria_nome
+            FROM posters p
+            LEFT JOIN categorie c ON p.id_categoria = c.id
+            WHERE p.id = :id";
+
+    $stmt = $this->conn->prepare($sql);
+    $stmt->bindValue(':id', $this->id, PDO::PARAM_INT);
+    $stmt->execute();
+
+    $data = $stmt->fetch(PDO::FETCH_ASSOC); // se non c'è riga => false [web:26]
+
+    if (!$data) {
+        $this->id = null;          // questa è la chiave
         return false;
     }
+
+    $this->titolo = $data['titolo'];
+    $this->descrizione = $data['descrizione'];
+    $this->autore = $data['autore'];
+    $this->prezzo = $data['prezzo'];
+    $this->image_path = $data['image_path'];
+    $this->id_categoria = $data['id_categoria'];
+    $this->categoria_nome = $data['categoria_nome'];
+
+    return true;
+}
+
 
     /**
      * Salva un nuovo prodotto nel database
