@@ -49,7 +49,7 @@ function showMessage(message, type) {
 // Verifica autenticazione utente
 async function checkUserAuth() {
   try {
-    const response = await fetch("check_session.php");
+    const response = await fetch("api/me.php");
     const data = await response.json();
 
     if (data.authenticated) {

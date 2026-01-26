@@ -28,4 +28,16 @@ final class Auth //definisce una classe finale chiamata Auth che non può essere
             Response::error("Accesso negato", 403);
         }
     }//metodo statico che verifica se l'utente è un amministratore; in caso contrario, invia una risposta di errore 403.
+
+    public static function userId(): int
+    {
+        self::requireLogin();
+        return (int)$_SESSION['id_utente'];
+    }//metodo statico che ritorna l'ID dell'utente autenticato dalla sessione.
+
+    public static function isAdmin(): bool
+    {
+        self::start();
+        return isset($_SESSION['ruolo']) && (int)$_SESSION['ruolo'] === 1;
+    }//metodo statico che verifica se l'utente corrente è un amministratore.
 }

@@ -6,7 +6,7 @@ function initPreferitiPage() {
 window.initPreferitiPage = initPreferitiPage;
 
 function checkAuthAndLoadFavorites() {
-  fetch("check_session.php")
+  fetch("api/me.php")
     .then((response) => response.json())
     .then((data) => {
       if (!data.authenticated) {

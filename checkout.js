@@ -58,7 +58,7 @@ function initCheckoutPage() {
   // Carica i dati utente se loggato
   function loadUserData() {
     console.log("👤 Caricamento dati utente...");
-    fetch("check_session.php")
+    fetch("api/me.php")
       .then((response) => response.json())
       .then((data) => {
         console.log("📥 Dati utente ricevuti:", data);

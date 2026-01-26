@@ -94,7 +94,7 @@ function updateDashboardStats() {
 
 async function loadProducts() {
   try {
-    const response = await fetch("admin_prodotti.php");
+    const response = await fetch("api/admin/prodotti.php");
     const data = await response.json();
 
     if (data.success) {
@@ -229,14 +229,14 @@ function setupProductForm() {
       if (productId) {
         // Modifica (PATCH)
         productData.id = parseInt(productId);
-        response = await fetch("admin_prodotti.php", {
+        response = await fetch("api/admin/prodotti.php", {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(productData),
         });
       } else {
         // Creazione (POST)
-        response = await fetch("admin_prodotti.php", {
+        response = await fetch("api/admin/prodotti.php", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(productData),
@@ -264,7 +264,7 @@ async function deleteProduct(productId) {
   if (!confirm("Sei sicuro di voler eliminare questo prodotto?")) return;
 
   try {
-    const response = await fetch("admin_prodotti.php", {
+    const response = await fetch("api/admin/prodotti.php", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id: productId }),
@@ -289,7 +289,7 @@ async function deleteProduct(productId) {
 
 async function loadUsers() {
   try {
-    const response = await fetch("admin_utenti.php");
+    const response = await fetch("api/admin/utenti.php");
     const data = await response.json();
 
     if (data.success) {
@@ -380,7 +380,7 @@ function displayUsers() {
 
 async function viewUserDetail(userId) {
   try {
-    const response = await fetch(`admin_utenti.php?id=${userId}`);
+    const response = await fetch(`api/admin/utenti.php?id=${userId}`);
     const data = await response.json();
 
     if (data.success) {
@@ -496,7 +496,7 @@ async function toggleBlockUser(userId, blocked) {
   if (!confirm(`Sei sicuro di voler ${action} questo utente?`)) return;
 
   try {
-    const response = await fetch("admin_utenti.php", {
+    const response = await fetch("api/admin/utenti.php", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id: userId, blocked: blocked }),
@@ -525,7 +525,7 @@ async function toggleAdminRole(userId, ruolo) {
   if (!confirm(`Sei sicuro di voler ${action} questo utente?`)) return;
 
   try {
-    const response = await fetch("admin_utenti.php", {
+    const response = await fetch("api/admin/utenti.php", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id: userId, ruolo: ruolo }),

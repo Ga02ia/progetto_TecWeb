@@ -316,7 +316,7 @@ function initCarrelloPage() {
 
   // Carica prodotti consigliati (ultimi 4 prodotti diversi da quelli nel carrello)
   function loadRecommendedProducts() {
-    fetch("get_prodotti.php")
+    fetch("api/prodotti.php")
       .then((response) => response.json())
       .then((data) => {
         if (data.success && data.data) {

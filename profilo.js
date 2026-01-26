@@ -10,7 +10,7 @@ function initProfiloPage() {
 window.initProfiloPage = initProfiloPage;
 
 function checkAuthAndLoadProfile() {
-  fetch("check_session.php")
+  fetch("api/me.php")
     .then((response) => response.json())
     .then((data) => {
       if (!data.authenticated) {
@@ -136,8 +136,8 @@ async function handleProfileUpdate(e) {
   }
 
   try {
-    const response = await fetch("update_profile.php", {
-      method: "POST",
+    const response = await fetch("api/me.php", {
+      method: "PATCH",
       headers: {
         "Content-Type": "application/json",
       },

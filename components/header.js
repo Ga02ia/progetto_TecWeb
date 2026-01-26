@@ -229,7 +229,7 @@ class HeaderComponent {
   // Esegui ricerca prodotti
   async performSearch(query, resultsContainer) {
     try {
-      const response = await fetch("get_prodotti.php");
+      const response = await fetch("api/prodotti.php");
       const data = await response.json();
 
       if (data.success && data.data) {

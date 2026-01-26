@@ -59,7 +59,7 @@ function initProdottiPage() {
 
   // Carica i prodotti dal database
   function loadProducts() {
-    fetch("get_prodotti.php")
+    fetch("api/prodotti.php")
       .then((response) => response.json())
       .then((data) => {
         loadingMessage.style.display = "none";

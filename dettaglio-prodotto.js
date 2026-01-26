@@ -22,7 +22,7 @@ if (window.location.search) {
 
 // Carica i dettagli del prodotto
 function loadProductDetail(id) {
-  fetch(`get_prodotti.php?id=${id}`)
+  fetch(`api/prodotti.php?id=${id}`)
     .then((response) => response.json())
     .then((data) => {
       if (data.success && data.data) {
