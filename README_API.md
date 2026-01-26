@@ -92,37 +92,37 @@ Auth::isAdmin();            // Verifica se admin
 
 ### Profilo Utente
 
-| Metodo | Endpoint | Auth | Descrizione |
-|--------|----------|------|-------------|
-| GET | `/api/me.php` | Optional | Verifica sessione e recupera profilo |
-| PATCH | `/api/me.php` | Required | Aggiorna profilo utente |
-| POST | `/api/me.php` | Required | Aggiorna profilo (compatibilità) |
+| Metodo | Endpoint      | Auth     | Descrizione                          |
+| ------ | ------------- | -------- | ------------------------------------ |
+| GET    | `/api/me.php` | Optional | Verifica sessione e recupera profilo |
+| PATCH  | `/api/me.php` | Required | Aggiorna profilo utente              |
+| POST   | `/api/me.php` | Required | Aggiorna profilo (compatibilità)     |
 
 ### Prodotti (Pubblico)
 
-| Metodo | Endpoint | Auth | Descrizione |
-|--------|----------|------|-------------|
-| GET | `/api/prodotti.php` | No | Lista prodotti |
-| GET | `/api/prodotti.php?id=N` | No | Dettaglio prodotto |
+| Metodo | Endpoint                 | Auth | Descrizione        |
+| ------ | ------------------------ | ---- | ------------------ |
+| GET    | `/api/prodotti.php`      | No   | Lista prodotti     |
+| GET    | `/api/prodotti.php?id=N` | No   | Dettaglio prodotto |
 
 ### Gestione Utenti (Admin)
 
-| Metodo | Endpoint | Auth | Descrizione |
-|--------|----------|------|-------------|
-| GET | `/api/admin/utenti.php` | Admin | Lista utenti |
-| GET | `/api/admin/utenti.php?id=N` | Admin | Dettaglio utente |
-| PATCH | `/api/admin/utenti.php` | Admin | Modifica ruolo/blocked |
-| DELETE | `/api/admin/utenti.php` | Admin | Elimina utente |
+| Metodo | Endpoint                     | Auth  | Descrizione            |
+| ------ | ---------------------------- | ----- | ---------------------- |
+| GET    | `/api/admin/utenti.php`      | Admin | Lista utenti           |
+| GET    | `/api/admin/utenti.php?id=N` | Admin | Dettaglio utente       |
+| PATCH  | `/api/admin/utenti.php`      | Admin | Modifica ruolo/blocked |
+| DELETE | `/api/admin/utenti.php`      | Admin | Elimina utente         |
 
 ### Gestione Prodotti (Admin)
 
-| Metodo | Endpoint | Auth | Descrizione |
-|--------|----------|------|-------------|
-| GET | `/api/admin/prodotti.php` | Admin | Lista prodotti |
-| GET | `/api/admin/prodotti.php?id=N` | Admin | Dettaglio prodotto |
-| POST | `/api/admin/prodotti.php` | Admin | Crea prodotto |
-| PATCH | `/api/admin/prodotti.php` | Admin | Aggiorna prodotto |
-| DELETE | `/api/admin/prodotti.php` | Admin | Elimina prodotto |
+| Metodo | Endpoint                       | Auth  | Descrizione        |
+| ------ | ------------------------------ | ----- | ------------------ |
+| GET    | `/api/admin/prodotti.php`      | Admin | Lista prodotti     |
+| GET    | `/api/admin/prodotti.php?id=N` | Admin | Dettaglio prodotto |
+| POST   | `/api/admin/prodotti.php`      | Admin | Crea prodotto      |
+| PATCH  | `/api/admin/prodotti.php`      | Admin | Aggiorna prodotto  |
+| DELETE | `/api/admin/prodotti.php`      | Admin | Elimina prodotto   |
 
 ---
 
@@ -180,7 +180,7 @@ I seguenti file sono **deprecati** ma funzionano ancora (alias ai nuovi endpoint
 ✅ **Validazione input** - Controlli su email, campi obbligatori, tipi  
 ✅ **Gestione errori** - Try/catch, log errori, messaggi generici  
 ✅ **Status codes corretti** - Rispetto standard HTTP  
-✅ **Documentazione** - Commenti e guide complete  
+✅ **Documentazione** - Commenti e guide complete
 
 ---
 
@@ -189,6 +189,7 @@ I seguenti file sono **deprecati** ma funzionano ancora (alias ai nuovi endpoint
 ### Blocco Utente
 
 Quando un utente viene bloccato (`blocked=1`):
+
 1. Al prossimo `GET /api/me.php` la sessione viene distrutta
 2. Il client riceve `{ authenticated: false, blocked: true }`
 3. L'utente deve rifare login (che fallirà)
@@ -196,6 +197,7 @@ Quando un utente viene bloccato (`blocked=1`):
 ### Protezioni Admin
 
 Gli admin **NON possono**:
+
 - Modificare il proprio account
 - Eliminare il proprio account
 
@@ -218,6 +220,7 @@ Le sessioni sono gestite tramite `Auth::start()` che controlla se già attiva pr
 ## 📞 Support
 
 Per domande o problemi:
+
 1. Consulta [REFACTORING.md](REFACTORING.md) per dettagli tecnici
 2. Consulta [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md) per aggiornare il frontend
 3. Verifica log errori in `/Applications/XAMPP/xamppfiles/logs/`

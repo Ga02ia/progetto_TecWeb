@@ -5,12 +5,14 @@
 ### 1. ✅ Support Classes Aggiornati
 
 **`/src/support/auth.php`**
+
 - Aggiunto metodo `Auth::userId()` - Ritorna l'ID dell'utente autenticato
 - Aggiunto metodo `Auth::isAdmin()` - Verifica se l'utente è admin
 
 ### 2. ✅ Nuovi Endpoint API Creati
 
 #### **`/api/me.php`** (Profilo Utente)
+
 - **GET**: Recupera dati profilo (sostituisce `check_session.php`)
   - Include controllo blocco utente
   - Distrugge sessione se utente bloccato
@@ -20,6 +22,7 @@
   - Aggiorna `$_SESSION['email']` se mail cambia
 
 #### **`/api/admin/utenti.php`** (Gestione Utenti Admin)
+
 - **GET**: Lista tutti gli utenti o dettaglio singolo
   - Supporta filtri: ruolo, blocked, ricerca
 - **PATCH**: Modifica ruolo/blocked di un utente
@@ -29,11 +32,13 @@
   - Protezione: non può eliminare se stesso
 
 #### **`/api/prodotti.php`** (Prodotti Pubblico)
+
 - **GET**: Lista prodotti o dettaglio singolo
   - Supporta filtri: categoria, ricerca
   - Endpoint pubblico (no autenticazione)
 
 #### **`/api/admin/prodotti.php`** (Gestione Prodotti Admin)
+
 - **GET**: Lista/dettaglio prodotti
 - **POST**: Crea nuovo prodotto
   - Validazione: titolo, descrizione, prezzo, image_path
@@ -44,6 +49,7 @@
 ### 3. ✅ Classi Model Ripulite
 
 **`classes/Utente.php`**
+
 - ❌ **RIMOSSO**: `handleApiRequest()`, `handleGet()`, `handlePatch()`, `handleDelete()`
 - ✅ **MANTENUTO**: Logica di dominio pura
   - Costruttore, carica, caricaDaEmail, salva, aggiorna, elimina
@@ -52,6 +58,7 @@
   - toArray, validazioni, getter/setter
 
 **`classes/Prodotto.php`**
+
 - ❌ **RIMOSSO**: `handleApiRequest()`, `handleGet()`, `handlePost()`, `handlePatch()`, `handleDelete()`
 - ✅ **MANTENUTO**: Logica di dominio pura
   - Costruttore, carica, salva, aggiorna, elimina
@@ -73,20 +80,20 @@ Tutti i file vecchi ora rimandano ai nuovi endpoint mantenendo retrocompatibilit
 
 ```javascript
 // GET - Verifica sessione e recupera dati utente
-const response = await fetch('/api/me.php');
+const response = await fetch("/api/me.php");
 const data = await response.json();
 // { authenticated: true, id_utente: 1, email: "...", nome: "...", ... }
 
 // PATCH - Aggiorna profilo
-const response = await fetch('/api/me.php', {
-  method: 'PATCH',
-  headers: { 'Content-Type': 'application/json' },
+const response = await fetch("/api/me.php", {
+  method: "PATCH",
+  headers: { "Content-Type": "application/json" },
   body: JSON.stringify({
-    nome: 'Mario',
-    cognome: 'Rossi',
-    mail: 'mario.rossi@example.com',
-    telefono: '1234567890'
-  })
+    nome: "Mario",
+    cognome: "Rossi",
+    mail: "mario.rossi@example.com",
+    telefono: "1234567890",
+  }),
 });
 // { success: true, message: "Profilo aggiornato con successo" }
 ```
@@ -95,25 +102,25 @@ const response = await fetch('/api/me.php', {
 
 ```javascript
 // GET - Lista tutti gli utenti
-const response = await fetch('/api/admin/utenti.php');
+const response = await fetch("/api/admin/utenti.php");
 // { success: true, utenti: [...] }
 
 // GET - Dettaglio singolo utente
-const response = await fetch('/api/admin/utenti.php?id=5');
+const response = await fetch("/api/admin/utenti.php?id=5");
 // { success: true, utente: {...}, ordini: [...] }
 
 // PATCH - Blocca utente
-const response = await fetch('/api/admin/utenti.php', {
-  method: 'PATCH',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ id: 5, blocked: 1 })
+const response = await fetch("/api/admin/utenti.php", {
+  method: "PATCH",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ id: 5, blocked: 1 }),
 });
 
 // DELETE - Elimina utente
-const response = await fetch('/api/admin/utenti.php', {
-  method: 'DELETE',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ id: 5 })
+const response = await fetch("/api/admin/utenti.php", {
+  method: "DELETE",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ id: 5 }),
 });
 ```
 
@@ -121,21 +128,21 @@ const response = await fetch('/api/admin/utenti.php', {
 
 ```javascript
 // GET pubblico - Lista prodotti
-const response = await fetch('/api/prodotti.php?categoria=2&ricerca=abstract');
+const response = await fetch("/api/prodotti.php?categoria=2&ricerca=abstract");
 // { success: true, count: 10, data: [...] }
 
 // POST admin - Crea prodotto
-const response = await fetch('/api/admin/prodotti.php', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
+const response = await fetch("/api/admin/prodotti.php", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
   body: JSON.stringify({
-    titolo: 'Nuovo Poster',
-    descrizione: 'Descrizione...',
-    autore: 'Artista',
+    titolo: "Nuovo Poster",
+    descrizione: "Descrizione...",
+    autore: "Artista",
     prezzo: 29.99,
-    image_path: 'img/poster.jpg',
-    id_categoria: 1
-  })
+    image_path: "img/poster.jpg",
+    id_categoria: 1,
+  }),
 });
 // { success: true, message: "Prodotto creato con successo", id: 123 }
 ```
@@ -143,34 +150,40 @@ const response = await fetch('/api/admin/prodotti.php', {
 ## Caratteristiche Implementate
 
 ### ✅ Separazione Completa
+
 - Model (classes/) contiene solo logica di dominio
 - Controller (api/) gestisce HTTP e JSON
 - Support (src/support/) fornisce utilities riusabili
 
 ### ✅ Risposte Standardizzate
+
 - Sempre `Content-Type: application/json`
 - Status code corretti: 200, 201, 400, 401, 403, 404, 405, 500
 - Formato uniforme: `{ success: true/false, ... }`
 - Uso di `Response::json()` e `Response::error()`
 
 ### ✅ Autenticazione Centralizzata
+
 - `Auth::start()` - Avvia sessione
 - `Auth::requireLogin()` - Richiede login (401 se non autenticato)
 - `Auth::requireAdmin()` - Richiede admin (403 se non admin)
 - `Auth::userId()` - Ritorna ID utente corrente
 
 ### ✅ Validazioni
+
 - Email con `filter_var()`
 - Campi obbligatori controllati
 - Prezzo numerico e > 0
 - Protezioni (non eliminare/modificare se stesso)
 
 ### ✅ Gestione Errori
+
 - Try/catch su PDOException
 - Log errori con `error_log()`
 - Messaggi generici al client (no dettagli DB)
 
 ### ✅ Retrocompatibilità
+
 - File vecchi deprecati ma funzionanti
 - Rimandano ai nuovi endpoint
 - Frontend può continuare a funzionare

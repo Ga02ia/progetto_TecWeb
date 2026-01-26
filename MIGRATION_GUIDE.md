@@ -9,16 +9,19 @@ Questa guida mostra come aggiornare le chiamate API dal frontend per usare i nuo
 #### Verifica Sessione / Get Profilo
 
 **Vecchio:**
+
 ```javascript
-fetch('/check_session.php')
+fetch("/check_session.php");
 ```
 
 **Nuovo:**
+
 ```javascript
-fetch('/api/me.php')
+fetch("/api/me.php");
 ```
 
 **Response (identica):**
+
 ```json
 {
   "authenticated": true,
@@ -39,30 +42,33 @@ fetch('/api/me.php')
 #### Aggiornamento Profilo
 
 **Vecchio:**
+
 ```javascript
-fetch('/update_profile.php', {
-  method: 'POST',  // ⚠️ Era POST
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ nome: 'Mario', cognome: 'Rossi' })
-})
+fetch("/update_profile.php", {
+  method: "POST", // ⚠️ Era POST
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ nome: "Mario", cognome: "Rossi" }),
+});
 ```
 
 **Nuovo (opzione 1 - PATCH standard):**
+
 ```javascript
-fetch('/api/me.php', {
-  method: 'PATCH',  // ✅ Standard REST
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ nome: 'Mario', cognome: 'Rossi' })
-})
+fetch("/api/me.php", {
+  method: "PATCH", // ✅ Standard REST
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ nome: "Mario", cognome: "Rossi" }),
+});
 ```
 
 **Nuovo (opzione 2 - POST per compatibilità):**
+
 ```javascript
-fetch('/api/me.php', {
-  method: 'POST',  // ✅ Supportato temporaneamente
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ nome: 'Mario', cognome: 'Rossi' })
-})
+fetch("/api/me.php", {
+  method: "POST", // ✅ Supportato temporaneamente
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ nome: "Mario", cognome: "Rossi" }),
+});
 ```
 
 ---
@@ -72,20 +78,23 @@ fetch('/api/me.php', {
 #### Lista Prodotti
 
 **Vecchio:**
+
 ```javascript
-fetch('/get_prodotti.php')
-fetch('/get_prodotti.php?categoria=2')
-fetch('/get_prodotti.php?ricerca=abstract')
+fetch("/get_prodotti.php");
+fetch("/get_prodotti.php?categoria=2");
+fetch("/get_prodotti.php?ricerca=abstract");
 ```
 
 **Nuovo:**
+
 ```javascript
-fetch('/api/prodotti.php')
-fetch('/api/prodotti.php?categoria=2')
-fetch('/api/prodotti.php?ricerca=abstract')
+fetch("/api/prodotti.php");
+fetch("/api/prodotti.php?categoria=2");
+fetch("/api/prodotti.php?ricerca=abstract");
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -108,13 +117,15 @@ fetch('/api/prodotti.php?ricerca=abstract')
 #### Dettaglio Prodotto
 
 **Vecchio:**
+
 ```javascript
-fetch('/get_prodotti.php?id=1')
+fetch("/get_prodotti.php?id=1");
 ```
 
 **Nuovo:**
+
 ```javascript
-fetch('/api/prodotti.php?id=1')
+fetch("/api/prodotti.php?id=1");
 ```
 
 ---
@@ -124,16 +135,19 @@ fetch('/api/prodotti.php?id=1')
 #### Lista Utenti
 
 **Vecchio:**
+
 ```javascript
-fetch('/admin_utenti.php', { method: 'GET' })
+fetch("/admin_utenti.php", { method: "GET" });
 ```
 
 **Nuovo:**
+
 ```javascript
-fetch('/api/admin/utenti.php', { method: 'GET' })
+fetch("/api/admin/utenti.php", { method: "GET" });
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -154,53 +168,59 @@ fetch('/api/admin/utenti.php', { method: 'GET' })
 #### Dettaglio Utente
 
 **Vecchio:**
+
 ```javascript
-fetch('/admin_utenti.php?id=5', { method: 'GET' })
+fetch("/admin_utenti.php?id=5", { method: "GET" });
 ```
 
 **Nuovo:**
+
 ```javascript
-fetch('/api/admin/utenti.php?id=5', { method: 'GET' })
+fetch("/api/admin/utenti.php?id=5", { method: "GET" });
 ```
 
 #### Modifica Utente (Blocca/Promuovi Admin)
 
 **Vecchio:**
+
 ```javascript
-fetch('/admin_utenti.php', {
-  method: 'PATCH',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ id: 5, blocked: 1, ruolo: 0 })
-})
+fetch("/admin_utenti.php", {
+  method: "PATCH",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ id: 5, blocked: 1, ruolo: 0 }),
+});
 ```
 
 **Nuovo:**
+
 ```javascript
-fetch('/api/admin/utenti.php', {
-  method: 'PATCH',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ id: 5, blocked: 1, ruolo: 0 })
-})
+fetch("/api/admin/utenti.php", {
+  method: "PATCH",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ id: 5, blocked: 1, ruolo: 0 }),
+});
 ```
 
 #### Elimina Utente
 
 **Vecchio:**
+
 ```javascript
-fetch('/admin_utenti.php', {
-  method: 'DELETE',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ id: 5 })
-})
+fetch("/admin_utenti.php", {
+  method: "DELETE",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ id: 5 }),
+});
 ```
 
 **Nuovo:**
+
 ```javascript
-fetch('/api/admin/utenti.php', {
-  method: 'DELETE',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ id: 5 })
-})
+fetch("/api/admin/utenti.php", {
+  method: "DELETE",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ id: 5 }),
+});
 ```
 
 ---
@@ -210,16 +230,19 @@ fetch('/api/admin/utenti.php', {
 #### Lista Prodotti Admin
 
 **Vecchio:**
+
 ```javascript
-fetch('/admin_prodotti.php', { method: 'GET' })
+fetch("/admin_prodotti.php", { method: "GET" });
 ```
 
 **Nuovo:**
+
 ```javascript
-fetch('/api/admin/prodotti.php', { method: 'GET' })
+fetch("/api/admin/prodotti.php", { method: "GET" });
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -230,83 +253,89 @@ fetch('/api/admin/prodotti.php', { method: 'GET' })
 #### Crea Prodotto
 
 **Vecchio:**
+
 ```javascript
-fetch('/admin_prodotti.php', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
+fetch("/admin_prodotti.php", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
   body: JSON.stringify({
-    titolo: 'Nuovo Poster',
-    descrizione: 'Descrizione...',
-    autore: 'Artista',
+    titolo: "Nuovo Poster",
+    descrizione: "Descrizione...",
+    autore: "Artista",
     prezzo: 29.99,
-    image_path: 'img/poster.jpg',
-    id_categoria: 1
-  })
-})
+    image_path: "img/poster.jpg",
+    id_categoria: 1,
+  }),
+});
 ```
 
 **Nuovo:**
+
 ```javascript
-fetch('/api/admin/prodotti.php', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
+fetch("/api/admin/prodotti.php", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
   body: JSON.stringify({
-    titolo: 'Nuovo Poster',
-    descrizione: 'Descrizione...',
-    autore: 'Artista',
+    titolo: "Nuovo Poster",
+    descrizione: "Descrizione...",
+    autore: "Artista",
     prezzo: 29.99,
-    image_path: 'img/poster.jpg',
-    id_categoria: 1
-  })
-})
+    image_path: "img/poster.jpg",
+    id_categoria: 1,
+  }),
+});
 ```
 
 #### Modifica Prodotto
 
 **Vecchio:**
+
 ```javascript
-fetch('/admin_prodotti.php', {
-  method: 'PATCH',
-  headers: { 'Content-Type': 'application/json' },
+fetch("/admin_prodotti.php", {
+  method: "PATCH",
+  headers: { "Content-Type": "application/json" },
   body: JSON.stringify({
     id: 1,
-    titolo: 'Titolo Aggiornato',
-    prezzo: 39.99
-  })
-})
+    titolo: "Titolo Aggiornato",
+    prezzo: 39.99,
+  }),
+});
 ```
 
 **Nuovo:**
+
 ```javascript
-fetch('/api/admin/prodotti.php', {
-  method: 'PATCH',
-  headers: { 'Content-Type': 'application/json' },
+fetch("/api/admin/prodotti.php", {
+  method: "PATCH",
+  headers: { "Content-Type": "application/json" },
   body: JSON.stringify({
     id: 1,
-    titolo: 'Titolo Aggiornato',
-    prezzo: 39.99
-  })
-})
+    titolo: "Titolo Aggiornato",
+    prezzo: 39.99,
+  }),
+});
 ```
 
 #### Elimina Prodotto
 
 **Vecchio:**
+
 ```javascript
-fetch('/admin_prodotti.php', {
-  method: 'DELETE',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ id: 1 })
-})
+fetch("/admin_prodotti.php", {
+  method: "DELETE",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ id: 1 }),
+});
 ```
 
 **Nuovo:**
+
 ```javascript
-fetch('/api/admin/prodotti.php', {
-  method: 'DELETE',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ id: 1 })
-})
+fetch("/api/admin/prodotti.php", {
+  method: "DELETE",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ id: 1 }),
+});
 ```
 
 ---
@@ -314,6 +343,7 @@ fetch('/api/admin/prodotti.php', {
 ## Strategia di Migrazione
 
 ### Opzione A: Migrazione Immediata (Consigliata)
+
 1. Sostituisci tutte le chiamate da vecchi a nuovi endpoint
 2. Testa il frontend
 3. Elimina i file vecchi deprecati:
@@ -324,6 +354,7 @@ fetch('/api/admin/prodotti.php', {
    - `get_prodotti.php`
 
 ### Opzione B: Migrazione Graduale
+
 1. Lascia i file vecchi (già configurati come alias)
 2. Aggiorna progressivamente le chiamate frontend
 3. Monitora i log per vedere quali endpoint sono ancora usati
@@ -355,7 +386,7 @@ Sostituisci con i nuovi percorsi `/api/*`.
 ✅ **Risposte standardizzate**: Formato JSON uniforme  
 ✅ **Gestione errori migliorata**: Status code corretti  
 ✅ **Retrocompatibilità**: File vecchi funzionano ancora  
-✅ **Autenticazione centralizzata**: Codice riusabile in `Auth::`  
+✅ **Autenticazione centralizzata**: Codice riusabile in `Auth::`
 
 ---
 
@@ -364,12 +395,14 @@ Sostituisci con i nuovi percorsi `/api/*`.
 I file vecchi (`check_session.php`, `update_profile.php`, ecc.) sono stati trasformati in **alias** che includono automaticamente i nuovi controller.
 
 **Questo significa che:**
+
 - Il frontend continua a funzionare senza modifiche
 - I vecchi endpoint rispondono esattamente come prima
 - Hai tempo per aggiornare il frontend gradualmente
 - Quando pronto, puoi eliminare i file vecchi
 
 **File deprecati (sicuri da eliminare dopo migrazione):**
+
 ```
 check_session.php
 update_profile.php
