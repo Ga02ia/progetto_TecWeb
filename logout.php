@@ -1,9 +1,11 @@
 <?php
-session_start();
-session_destroy();
-header('Content-Type: application/json');
+require_once __DIR__ . '/src/support/response.php';
+require_once __DIR__ . '/src/support/auth.php';
 
-echo json_encode([
+Auth::start();
+session_destroy();
+
+Response::json([
     "success" => true,
     "message" => "Logout effettuato con successo"
 ]);

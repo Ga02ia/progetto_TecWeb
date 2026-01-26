@@ -323,13 +323,15 @@ if (cartModal) {
 
 // Funzioni per gestire i preferiti
 function checkIfFavorite(productId) {
-  const formData = new FormData();
-  formData.append("id_poster", productId);
-  formData.append("action", "check");
-
   fetch("manage_preferiti.php", {
     method: "POST",
-    body: formData,
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      id_poster: productId,
+      action: "check",
+    }),
   })
     .then((response) => response.json())
     .then((data) => {
@@ -347,13 +349,15 @@ function toggleFavorite(productId) {
   const heartIcon = favoriteBtn.querySelector(".heart-icon");
   const isFavorite = heartIcon.textContent === "❤️";
 
-  const formData = new FormData();
-  formData.append("id_poster", productId);
-  formData.append("action", isFavorite ? "remove" : "add");
-
   fetch("manage_preferiti.php", {
     method: "POST",
-    body: formData,
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      id_poster: productId,
+      action: isFavorite ? "remove" : "add",
+    }),
   })
     .then((response) => response.json())
     .then((data) => {

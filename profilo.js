@@ -128,12 +128,6 @@ async function handleProfileUpdate(e) {
     cap: document.getElementById("editCap").value.trim(),
   };
 
-  // Aggiungi password solo se è stata inserita
-  const password = document.getElementById("editPassword").value;
-  if (password) {
-    formData.password = password;
-  }
-
   // Validazione base
   if (!formData.nome || !formData.cognome || !formData.mail) {
     errorMsg.textContent = "Nome, cognome ed email sono obbligatori";

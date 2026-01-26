@@ -1,21 +1,15 @@
 <?php
-session_start();
-header('Content-Type: application/json');
+require_once __DIR__ . '/dbConnection.php';
+require_once __DIR__ . '/src/support/Response.php';
+require_once __DIR__ . '/src/support/Auth.php';
 
-// Verifica autenticazione
-if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
-    echo json_encode(["success" => false, "message" => "Non autenticato"]);
-    exit();
-}
-
-require_once 'dbConnection.php';
+Auth::requireLogin();
 
 try {
-    $id_utente = $_SESSION['id_utente'];
+    $idUtente = (int) $_SESSION['id_utente'];
 
-    // Query per recuperare tutti i preferiti dell'utente con i dettagli dei prodotti
     $stmt = $conn->prepare("
-        SELECT 
+        SELECT
             p.id,
             p.titolo,
             p.descrizione,
@@ -31,22 +25,17 @@ try {
         WHERE pref.id_utente = :id_utente
         ORDER BY pref.data_aggiunta DESC
     ");
-    
-    $stmt->bindParam(':id_utente', $id_utente, PDO::PARAM_INT);
+
+    $stmt->bindValue(':id_utente', $idUtente, PDO::PARAM_INT);
     $stmt->execute();
-    
+
     $preferiti = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
-    echo json_encode([
+
+    Response::json([
         "success" => true,
         "count" => count($preferiti),
         "preferiti" => $preferiti
     ]);
-    
 } catch (PDOException $e) {
-    echo json_encode([
-        "success" => false,
-        "message" => "Errore nel recupero dei preferiti: " . $e->getMessage()
-    ]);
+    Response::error("Errore nel recupero dei preferiti", 500);
 }
-?>

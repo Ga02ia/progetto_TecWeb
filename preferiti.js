@@ -78,7 +78,11 @@ function displayFavorites(preferiti) {
     html += `
       <div class="favorite-card">
         <div class="favorite-card-image" style="${imageStyle}" onclick="window.location.href='dettaglio-prodotto.html?id=${product.id}'">
-          ${!product.image_path || product.image_path.includes("pinterest.com") ? '<div class="product-image-overlay"><span>🖼️</span></div>' : ""}
+          ${
+            !product.image_path || product.image_path.includes("pinterest.com")
+              ? '<div class="product-image-overlay"><span>🖼️</span></div>'
+              : ""
+          }
         </div>
         <div class="favorite-card-body">
           <h3 onclick="window.location.href='dettaglio-prodotto.html?id=${product.id}'" style="cursor: pointer;">${product.titolo}</h3>
@@ -104,14 +108,15 @@ function displayFavorites(preferiti) {
   container.innerHTML = html;
 }
 
+// CAMBIATA: ora manda JSON (non FormData) a manage_preferiti.php
 function removeFavorite(productId) {
-  const formData = new FormData();
-  formData.append("id_poster", productId);
-  formData.append("action", "remove");
-
   fetch("manage_preferiti.php", {
     method: "POST",
-    body: formData,
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      id_poster: productId,
+      action: "remove",
+    }),
   })
     .then((response) => response.json())
     .then((data) => {

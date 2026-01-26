@@ -1,21 +1,16 @@
 <?php
-session_start();
-header('Content-Type: application/json');
+require_once __DIR__ . '/dbConnection.php';
 
-// Verifica autenticazione
-if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
-    echo json_encode(["success" => false, "message" => "Non autenticato"]);
-    exit();
-}
+require_once __DIR__ . '/src/support/response.php';
+require_once __DIR__ . '/src/support/auth.php';
 
-require_once 'dbConnection.php';
+Auth::requireLogin();
 
 try {
-    $id_utente = $_SESSION['id_utente'];
+    $idUtente = (int) $_SESSION['id_utente'];
 
-    // Query per recuperare tutti gli ordini dell'utente con i dettagli dei prodotti
     $stmt = $conn->prepare("
-        SELECT 
+        SELECT
             o.id AS ordine_id,
             o.totale,
             o.data,
@@ -30,47 +25,43 @@ try {
         WHERE o.id_utente = :id_utente
         ORDER BY o.data DESC
     ");
-    
-    $stmt->bindParam(':id_utente', $id_utente, PDO::PARAM_INT);
+
+    $stmt->bindValue(':id_utente', $idUtente, PDO::PARAM_INT);
     $stmt->execute();
-    
+
     $risultati = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
+
     // Raggruppa i prodotti per ordine
-    $ordini = [];
+    $ordiniMap = [];
+
     foreach ($risultati as $row) {
-        $ordine_id = $row['ordine_id'];
-        
-        if (!isset($ordini[$ordine_id])) {
-            $ordini[$ordine_id] = [
-                'id' => $ordine_id,
+        $ordineId = (int) $row['ordine_id'];
+
+        if (!isset($ordiniMap[$ordineId])) {
+            $ordiniMap[$ordineId] = [
+                'id' => $ordineId,
                 'totale' => $row['totale'],
                 'data' => $row['data'],
                 'prodotti' => []
             ];
         }
-        
-        $ordini[$ordine_id]['prodotti'][] = [
-            'id' => $row['poster_id'],
+
+        $ordiniMap[$ordineId]['prodotti'][] = [
+            'id' => (int) $row['poster_id'],
             'titolo' => $row['titolo'],
             'autore' => $row['autore'],
             'image_path' => $row['image_path'],
             'prezzo' => $row['prezzo']
         ];
     }
-    
-    // Converti l'array associativo in array indicizzato
-    $ordini = array_values($ordini);
-    
-    echo json_encode([
+
+    // Converti mappa -> array indicizzato
+    $ordini = array_values($ordiniMap);
+
+    Response::json([
         "success" => true,
         "ordini" => $ordini
     ]);
-    
 } catch (PDOException $e) {
-    echo json_encode([
-        "success" => false,
-        "message" => "Errore nel recupero degli ordini: " . $e->getMessage()
-    ]);
+    Response::error("Errore nel recupero degli ordini", 500);
 }
-?>

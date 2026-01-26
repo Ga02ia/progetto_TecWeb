@@ -488,8 +488,10 @@ class Utente {
     public static function handleApiRequest($conn) {
         header('Content-Type: application/json');
         
-        // Verifica che l'utente sia admin
-        session_start();
+        // Verifica che l'utente sia admin (solo se la sessione non è già stata controllata)
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            session_start();
+        }
         if (!isset($_SESSION['authenticated']) || $_SESSION['ruolo'] != 1) {
             http_response_code(403);
             echo json_encode(["success" => false, "message" => "Accesso negato. Solo gli amministratori possono accedere."]);

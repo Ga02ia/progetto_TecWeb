@@ -1,7 +1,9 @@
 <?php
-require_once 'dbConnection.php';
-require_once 'classes/Prodotto.php';
+require_once __DIR__ . '/dbConnection.php';
+require_once __DIR__ . '/classes/Prodotto.php';
 
-// Delega tutta la gestione API alla classe Prodotto
+require_once __DIR__ . '/src/support/response.php';
+
+// Pubblico: niente Auth qui
 Prodotto::handleApiRequest($conn);
 

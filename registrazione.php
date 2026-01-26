@@ -1,75 +1,72 @@
 <?php
-session_start();
-header('Content-Type: application/json');
-require_once 'dbConnection.php';
+require_once __DIR__ . '/dbConnection.php';
+
+require_once __DIR__ . '/src/support/response.php';
+require_once __DIR__ . '/src/support/auth.php';
+
+Auth::start();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    echo json_encode(["success" => false, "message" => "Metodo non valido"]);
-    exit();
+    Response::error("Metodo non valido", 405);
 }
 
-$nome = trim($_POST['nome'] ?? '');
-$cognome = trim($_POST['cognome'] ?? '');
-$mail = trim($_POST['mail'] ?? '');
-$telefono = trim($_POST['telefono'] ?? '');
-$via = trim($_POST['via'] ?? '');
-$citta = trim($_POST['citta'] ?? '');
-$provincia = strtoupper(trim($_POST['provincia'] ?? ''));
-$cap = trim($_POST['cap'] ?? '');
-$password = $_POST['password'] ?? '';
-$password_confirm = $_POST['password_confirm'] ?? '';
+$data = json_decode(file_get_contents('php://input'), true);
+if (!$data) {
+    Response::error("Dati non validi", 400);
+}
 
-// Validazione
-if (empty($nome) || empty($cognome) || empty($mail) || empty($telefono) || empty($via) || empty($citta) || empty($provincia) || empty($cap) || empty($password)) {
-    echo json_encode(["success" => false, "message" => "Compila tutti i campi"]);
-    exit();
+$nome = trim((string)($data['nome'] ?? ''));
+$cognome = trim((string)($data['cognome'] ?? ''));
+$mail = trim((string)($data['mail'] ?? ''));
+$telefono = trim((string)($data['telefono'] ?? ''));
+$via = trim((string)($data['via'] ?? ''));
+$citta = trim((string)($data['citta'] ?? ''));
+$provincia = strtoupper(trim((string)($data['provincia'] ?? '')));
+$cap = trim((string)($data['cap'] ?? ''));
+$password = (string)($data['password'] ?? '');
+$passwordConfirm = (string)($data['password_confirm'] ?? '');
+
+if ($nome === '' || $cognome === '' || $mail === '' || $telefono === '' || $via === '' ||
+    $citta === '' || $provincia === '' || $cap === '' || $password === '') {
+    Response::error("Compila tutti i campi", 400);
 }
 
 if (!filter_var($mail, FILTER_VALIDATE_EMAIL)) {
-    echo json_encode(["success" => false, "message" => "Email non valida"]);
-    exit();
+    Response::error("Email non valida", 400);
 }
 
-if ($password !== $password_confirm) {
-    echo json_encode(["success" => false, "message" => "Le password non coincidono"]);
-    exit();
+if ($password !== $passwordConfirm) {
+    Response::error("Le password non coincidono", 400);
 }
 
 if (strlen($password) < 6) {
-    echo json_encode(["success" => false, "message" => "Password troppo corta (min 6 caratteri)"]);
-    exit();
+    Response::error("Password troppo corta (min 6 caratteri)", 400);
 }
 
 if (strlen($provincia) !== 2) {
-    echo json_encode(["success" => false, "message" => "Provincia deve essere di 2 caratteri"]);
-    exit();
+    Response::error("Provincia deve essere di 2 caratteri", 400);
 }
 
 if (strlen($cap) !== 5 || !is_numeric($cap)) {
-    echo json_encode(["success" => false, "message" => "CAP non valido (5 cifre)"]);
-    exit();
+    Response::error("CAP non valido (5 cifre)", 400);
 }
 
 try {
-    // ✅ Controlla se l'utente esiste già
     $checkStmt = $conn->prepare("SELECT id FROM utenti WHERE mail = :mail");
-    $checkStmt->bindParam(':mail', $mail);
+    $checkStmt->bindValue(':mail', $mail, PDO::PARAM_STR);
     $checkStmt->execute();
-    
-    if ($checkStmt->rowCount() > 0) {
-        echo json_encode(["success" => false, "message" => "Email già registrata"]);
-        exit();
+
+    if ($checkStmt->fetch(PDO::FETCH_ASSOC)) {
+        Response::error("Email già registrata", 409);
     }
-    
-    // ✅ HASH della password (SICURO!)
-    $password_hash = password_hash($password, PASSWORD_DEFAULT);
-    
-    // ✅ Inserisci nuovo utente con tutti i campi
+
+    $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+
     $stmt = $conn->prepare("
-        INSERT INTO utenti (nome, cognome, mail, telefono, via, citta, provincia, cap, password_hash, ruolo) 
+        INSERT INTO utenti (nome, cognome, mail, Telefono, via, citta, provincia, cap, password_hash, ruolo)
         VALUES (:nome, :cognome, :mail, :telefono, :via, :citta, :provincia, :cap, :password_hash, 0)
     ");
-    
+
     $stmt->execute([
         ':nome' => $nome,
         ':cognome' => $cognome,
@@ -79,26 +76,25 @@ try {
         ':citta' => $citta,
         ':provincia' => $provincia,
         ':cap' => $cap,
-        ':password_hash' => $password_hash,
-        // ruolo 0 = utente normale
+        ':password_hash' => $passwordHash
     ]);
-    
-    // Crea la sessione per l'utente appena registrato
-    $userId = $conn->lastInsertId();
+
+    $userId = (int)$conn->lastInsertId();
+
     $_SESSION['authenticated'] = true;
     $_SESSION['id_utente'] = $userId;
     $_SESSION['email'] = $mail;
-    
-    echo json_encode([
-        "success" => true, 
+    $_SESSION['ruolo'] = 0;
+
+    Response::json([
+        "success" => true,
         "message" => "Registrazione completata! Sarai reindirizzato alla home.",
         "redirect" => "home.html"
     ]);
-    
 } catch (PDOException $e) {
-   echo json_encode([
-        "success" => false,
-        "message" => "Errore server: " . $e->getMessage()
-    ]);
+    error_log("Errore registrazione: " . $e->getMessage());
+    Response::error("Errore durante la registrazione. Riprova.", 500);
+} catch (Exception $e) {
+    error_log("Errore generico registrazione: " . $e->getMessage());
+    Response::error("Errore server", 500);
 }
-?>

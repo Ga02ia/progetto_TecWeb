@@ -417,9 +417,12 @@ function initLoginView() {
     try {
       const response = await fetch("login.php", {
         method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        headers: { "Content-Type": "application/json" },
         credentials: "same-origin",
-        body: `email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`,
+        body: JSON.stringify({
+          email: email,
+          password: password,
+        }),
       });
 
       const data = await response.json();
@@ -526,15 +529,29 @@ function initRegistrazioneView() {
     try {
       const response = await fetch("registrazione.php", {
         method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        headers: { "Content-Type": "application/json" },
         credentials: "same-origin",
-        body: `nome=${encodeURIComponent(nome)}&cognome=${encodeURIComponent(cognome)}&mail=${encodeURIComponent(mail)}&telefono=${encodeURIComponent(telefono)}&via=${encodeURIComponent(via)}&citta=${encodeURIComponent(citta)}&provincia=${encodeURIComponent(provincia)}&cap=${encodeURIComponent(cap)}&password=${encodeURIComponent(password)}&password_confirm=${encodeURIComponent(passwordConfirm)}`,
+        body: JSON.stringify({
+          nome: nome,
+          cognome: cognome,
+          mail: mail,
+          telefono: telefono,
+          via: via,
+          citta: citta,
+          provincia: provincia,
+          cap: cap,
+          password: password,
+          password_confirm: passwordConfirm,
+        }),
       });
 
       const data = await response.json();
       showMessage(data.message, data.success ? "success" : "error");
 
       if (data.success) {
+        // Aggiorna lo store con i dati utente
+        await checkUserAuth();
+
         setTimeout(() => {
           router.navigate("/home");
         }, 1500);

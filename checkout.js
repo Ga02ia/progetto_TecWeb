@@ -194,10 +194,8 @@ function initCheckoutPage() {
       cap,
       paymentMethod,
       note,
-      totale: total.toFixed(2),
       prodotti: cart.map((item) => ({
         id_poster: item.id,
-        prezzo: item.prezzo,
         quantita: item.quantity || 1,
       })),
     };
@@ -213,13 +211,18 @@ function initCheckoutPage() {
       credentials: "same-origin",
       body: JSON.stringify(orderData),
     })
-      .then((response) => response.json())
+      .then(async (response) => {
+        const text = await response.text();
+        try {
+          return JSON.parse(text);
+        } catch {
+          throw new Error(text); // qui dentro trovi l'HTML dell'errore PHP
+        }
+      })
       .then((data) => {
         if (data.success) {
-          // Svuota il carrello usando lo store
           store.clearCart();
 
-          // Salva i dati dell'ordine per la pagina di conferma
           localStorage.setItem(
             "order_confirmation",
             JSON.stringify({
@@ -229,7 +232,6 @@ function initCheckoutPage() {
             }),
           );
 
-          // Redirect alla pagina di successo
           router.navigate("/order-success");
         } else {
           showToast(data.message || "Errore durante la creazione dell'ordine");

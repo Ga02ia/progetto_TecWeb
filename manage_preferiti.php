@@ -1,67 +1,93 @@
 <?php
-session_start();
-header('Content-Type: application/json');
+require_once __DIR__ . '/dbConnection.php';
 
-// Verifica autenticazione
-if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
-    echo json_encode(["success" => false, "message" => "Non autenticato"]);
-    exit();
+require_once __DIR__ . '/src/support/response.php';
+require_once __DIR__ . '/src/support/auth.php';
+
+Auth::requireLogin();
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    Response::error("Metodo non consentito", 405);
 }
 
-require_once 'dbConnection.php';
+$data = json_decode(file_get_contents('php://input'), true);
+if (!$data || !isset($data['action'], $data['id_poster'])) {
+    Response::error("Dati mancanti", 400);
+}
+
+$action = (string) $data['action'];
+$idPoster = (int) $data['id_poster'];
+$idUtente = (int) $_SESSION['id_utente'];
+
+if ($idPoster <= 0) {
+    Response::error("ID prodotto non valido", 400);
+}
 
 try {
-    $id_utente = $_SESSION['id_utente'];
-    $id_poster = isset($_POST['id_poster']) ? intval($_POST['id_poster']) : 0;
-    $action = isset($_POST['action']) ? $_POST['action'] : '';
-
-    if ($id_poster <= 0) {
-        echo json_encode(["success" => false, "message" => "ID prodotto non valido"]);
-        exit();
-    }
-
     if ($action === 'add') {
-        // Aggiungi ai preferiti
-        $stmt = $conn->prepare("INSERT INTO preferiti (id_utente, id_poster) VALUES (:id_utente, :id_poster)");
-        $stmt->bindParam(':id_utente', $id_utente, PDO::PARAM_INT);
-        $stmt->bindParam(':id_poster', $id_poster, PDO::PARAM_INT);
-        
+        $stmt = $conn->prepare("
+            INSERT INTO preferiti (id_utente, id_poster)
+            VALUES (:id_utente, :id_poster)
+        ");
+        $stmt->bindValue(':id_utente', $idUtente, PDO::PARAM_INT);
+        $stmt->bindValue(':id_poster', $idPoster, PDO::PARAM_INT);
+
         try {
             $stmt->execute();
-            echo json_encode(["success" => true, "message" => "Aggiunto ai preferiti", "isFavorite" => true]);
+            Response::json([
+                "success" => true,
+                "message" => "Aggiunto ai preferiti",
+                "isFavorite" => true
+            ]);
         } catch (PDOException $e) {
-            // Se è un duplicate key, significa che è già nei preferiti
-            if ($e->getCode() == 23000) {
-                echo json_encode(["success" => false, "message" => "Già nei preferiti"]);
-            } else {
-                throw $e;
+            // 23000 di solito = violazione vincolo (es. duplicate key)
+            if ((int)$e->getCode() === 23000) {
+                Response::json([
+                    "success" => false,
+                    "message" => "Già nei preferiti",
+                    "isFavorite" => true
+                ], 409);
             }
+            throw $e;
         }
-    } elseif ($action === 'remove') {
-        // Rimuovi dai preferiti
-        $stmt = $conn->prepare("DELETE FROM preferiti WHERE id_utente = :id_utente AND id_poster = :id_poster");
-        $stmt->bindParam(':id_utente', $id_utente, PDO::PARAM_INT);
-        $stmt->bindParam(':id_poster', $id_poster, PDO::PARAM_INT);
-        $stmt->execute();
-        
-        echo json_encode(["success" => true, "message" => "Rimosso dai preferiti", "isFavorite" => false]);
-    } elseif ($action === 'check') {
-        // Controlla se è nei preferiti
-        $stmt = $conn->prepare("SELECT id FROM preferiti WHERE id_utente = :id_utente AND id_poster = :id_poster");
-        $stmt->bindParam(':id_utente', $id_utente, PDO::PARAM_INT);
-        $stmt->bindParam(':id_poster', $id_poster, PDO::PARAM_INT);
-        $stmt->execute();
-        
-        $isFavorite = $stmt->rowCount() > 0;
-        echo json_encode(["success" => true, "isFavorite" => $isFavorite]);
-    } else {
-        echo json_encode(["success" => false, "message" => "Azione non valida"]);
     }
-    
+
+    if ($action === 'remove') {
+        $stmt = $conn->prepare("
+            DELETE FROM preferiti
+            WHERE id_utente = :id_utente AND id_poster = :id_poster
+        ");
+        $stmt->bindValue(':id_utente', $idUtente, PDO::PARAM_INT);
+        $stmt->bindValue(':id_poster', $idPoster, PDO::PARAM_INT);
+        $stmt->execute();
+
+        Response::json([
+            "success" => true,
+            "message" => "Rimosso dai preferiti",
+            "isFavorite" => false
+        ]);
+    }
+
+    if ($action === 'check') {
+        $stmt = $conn->prepare("
+            SELECT 1
+            FROM preferiti
+            WHERE id_utente = :id_utente AND id_poster = :id_poster
+            LIMIT 1
+        ");
+        $stmt->bindValue(':id_utente', $idUtente, PDO::PARAM_INT);
+        $stmt->bindValue(':id_poster', $idPoster, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $isFavorite = (bool) $stmt->fetchColumn();
+
+        Response::json([
+            "success" => true,
+            "isFavorite" => $isFavorite
+        ]);
+    }
+
+    Response::error("Azione non valida", 400);
 } catch (PDOException $e) {
-    echo json_encode([
-        "success" => false,
-        "message" => "Errore: " . $e->getMessage()
-    ]);
+    Response::error("Errore database", 500);
 }
-?>

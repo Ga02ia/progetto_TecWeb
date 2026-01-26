@@ -1,89 +1,115 @@
 <?php
-session_start();
-header('Content-Type: application/json');
-require_once 'dbConnection.php';
+require_once __DIR__ . '/dbConnection.php';
 
-// Leggi i dati JSON
-$input = file_get_contents('php://input');
-$data = json_decode($input, true);
+require_once __DIR__ . '/src/support/response.php';
+require_once __DIR__ . '/src/support/auth.php';
 
-if (!$data) {
-    echo json_encode(["success" => false, "message" => "Dati non validi"]);
-    exit();
+Auth::requireLogin();
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    Response::error("Metodo non consentito", 405);
 }
 
-// Validazione dati
-$required = ['nome', 'cognome', 'email', 'telefono', 'via', 'citta', 'provincia', 'cap', 'totale', 'prodotti'];
+$data = json_decode(file_get_contents('php://input'), true);
+if (!$data) {
+    Response::error("Dati non validi", 400);
+}
+
+// Validazione campi anagrafici (come facevi prima)
+$required = ['nome', 'cognome', 'email', 'telefono', 'via', 'citta', 'provincia', 'cap', 'prodotti'];
 foreach ($required as $field) {
     if (empty($data[$field])) {
-        echo json_encode(["success" => false, "message" => "Campo obbligatorio mancante: $field"]);
-        exit();
+        Response::error("Campo obbligatorio mancante: $field", 400);
     }
 }
 
-// Verifica che ci siano prodotti
+// Validazione prodotti
 if (!is_array($data['prodotti']) || count($data['prodotti']) === 0) {
-    echo json_encode(["success" => false, "message" => "Nessun prodotto nell'ordine"]);
-    exit();
+    Response::error("Nessun prodotto nell'ordine", 400);
 }
 
+$idUtente = (int) $_SESSION['id_utente'];
+
 try {
-    // Inizia transazione
     $conn->beginTransaction();
 
-    // Ottieni l'ID utente se loggato
-    $id_utente = isset($_SESSION['id_utente']) ? $_SESSION['id_utente'] : null;
+    // 1) Calcola totale lato server prendendo i prezzi dal DB
+    $totale = 0.0;
 
-    // Inserisci l'ordine
-    $stmt = $conn->prepare("
-        INSERT INTO ordini (totale, data, id_utente) 
+    // statement riutilizzabile per leggere il prezzo dal DB
+    $stmtPrezzo = $conn->prepare("SELECT prezzo FROM posters WHERE id = :id");
+
+    foreach ($data['prodotti'] as $p) {
+        $idPoster = (int)($p['id_poster'] ?? 0);
+        $quantita = (int)($p['quantita'] ?? 1);
+
+        if ($idPoster <= 0) {
+            Response::error("id_poster non valido", 400);
+        }
+        if ($quantita <= 0) {
+            Response::error("quantita non valida", 400);
+        }
+
+        $stmtPrezzo->bindValue(':id', $idPoster, PDO::PARAM_INT);
+        $stmtPrezzo->execute();
+        $row = $stmtPrezzo->fetch(PDO::FETCH_ASSOC);
+
+        if (!$row) {
+            Response::error("Prodotto non trovato: $idPoster", 404);
+        }
+
+        $prezzoDb = (float)$row['prezzo'];
+        $totale += $prezzoDb * $quantita;
+    }
+
+    // 2) Inserisci ordine (totale calcolato server-side)
+    $stmtOrdine = $conn->prepare("
+        INSERT INTO ordini (totale, data, id_utente)
         VALUES (:totale, NOW(), :id_utente)
     ");
-    
-    $stmt->execute([
-        ':totale' => $data['totale'],
-        ':id_utente' => $id_utente
+    $stmtOrdine->execute([
+        ':totale' => $totale,
+        ':id_utente' => $idUtente
     ]);
-    
-    $orderId = $conn->lastInsertId();
 
-    // Inserisci i prodotti dell'ordine
-    $stmtProdotti = $conn->prepare("
-        INSERT INTO prodottiOrdine (id_ordine, id_poster, prezzo) 
+    $orderId = (int) $conn->lastInsertId();
+
+    // 3) Inserisci righe prodotti ordine (prezzo preso dal DB)
+    $stmtInsertRiga = $conn->prepare("
+        INSERT INTO prodottiOrdine (id_ordine, id_poster, prezzo)
         VALUES (:id_ordine, :id_poster, :prezzo)
     ");
 
-    foreach ($data['prodotti'] as $prodotto) {
-        $quantita = isset($prodotto['quantita']) ? $prodotto['quantita'] : 1;
-        
-        // Inserisci ogni quantità come riga separata (secondo la struttura del DB)
+    foreach ($data['prodotti'] as $p) {
+        $idPoster = (int)$p['id_poster'];
+        $quantita = (int)($p['quantita'] ?? 1);
+
+        $stmtPrezzo->bindValue(':id', $idPoster, PDO::PARAM_INT);
+        $stmtPrezzo->execute();
+        $row = $stmtPrezzo->fetch(PDO::FETCH_ASSOC);
+        $prezzoDb = (float)$row['prezzo'];
+
         for ($i = 0; $i < $quantita; $i++) {
-            $stmtProdotti->execute([
+            $stmtInsertRiga->execute([
                 ':id_ordine' => $orderId,
-                ':id_poster' => $prodotto['id_poster'],
-                ':prezzo' => $prodotto['prezzo']
+                ':id_poster' => $idPoster,
+                ':prezzo' => $prezzoDb
             ]);
         }
     }
 
-    // Commit transazione
     $conn->commit();
 
-    echo json_encode([
+    Response::json([
         "success" => true,
         "message" => "Ordine creato con successo",
-        "orderId" => $orderId
+        "orderId" => $orderId,
+        "totale" => $totale
     ]);
-
 } catch (PDOException $e) {
-    // Rollback in caso di errore
     if ($conn->inTransaction()) {
         $conn->rollBack();
     }
-    
-    echo json_encode([
-        "success" => false,
-        "message" => "Errore durante la creazione dell'ordine: " . $e->getMessage()
-    ]);
+    Response::error("Errore durante la creazione dell'ordine", 500);
 }
 ?>

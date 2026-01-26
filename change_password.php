@@ -1,83 +1,50 @@
 <?php
-session_start();
-header('Content-Type: application/json');
-require_once 'dbConnection.php';
-require_once 'classes/Utente.php';
+require_once __DIR__ . '/dbConnection.php';
+require_once __DIR__ . '/classes/Utente.php';
 
-// Verifica autenticazione
-if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
-    http_response_code(401);
-    echo json_encode(["success" => false, "message" => "Non autenticato"]);
-    exit();
+require_once __DIR__ . '/src/support/response.php';
+require_once __DIR__ . '/src/support/auth.php';
+
+Auth::requireLogin();
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    Response::error("Metodo non consentito", 405);
 }
 
-// Accetta solo POST
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    echo json_encode(["success" => false, "message" => "Metodo non consentito"]);
-    exit();
+$data = json_decode(file_get_contents('php://input'), true);
+
+if (!$data || !isset($data['currentPassword'], $data['newPassword'])) {
+    Response::error("Dati mancanti", 400);
+}
+
+$currentPassword = (string) $data['currentPassword'];
+$newPassword = (string) $data['newPassword'];
+
+if (strlen($newPassword) < 6) {
+    Response::error("La nuova password deve essere di almeno 6 caratteri", 400);
 }
 
 try {
-    // Leggi i dati JSON
-    $data = json_decode(file_get_contents('php://input'), true);
-    
-    if (!$data || !isset($data['currentPassword']) || !isset($data['newPassword'])) {
-        http_response_code(400);
-        echo json_encode(["success" => false, "message" => "Dati mancanti"]);
-        exit();
-    }
-    
-    $currentPassword = $data['currentPassword'];
-    $newPassword = $data['newPassword'];
-    
-    // Validazione password
-    if (strlen($newPassword) < 6) {
-        http_response_code(400);
-        echo json_encode(["success" => false, "message" => "La nuova password deve essere di almeno 6 caratteri"]);
-        exit();
-    }
-    
-    // Carica l'utente corrente
-    $utente = new Utente($conn, $_SESSION['id_utente']);
-    
+    $utente = new Utente($conn, (int)$_SESSION['id_utente']);
+
     if ($utente->getId() === null) {
-        http_response_code(404);
-        echo json_encode(["success" => false, "message" => "Utente non trovato"]);
-        exit();
+        Response::error("Utente non trovato", 404);
     }
-    
-    // Verifica la password attuale
+
     if (!$utente->verificaPassword($currentPassword)) {
-        http_response_code(401);
-        echo json_encode(["success" => false, "message" => "Password attuale non corretta"]);
-        exit();
+        Response::error("Password attuale non corretta", 401);
     }
-    
-    // Aggiorna con la nuova password
+
     if ($utente->aggiorna(['password' => $newPassword])) {
-        echo json_encode([
-            "success" => true, 
+        Response::json([
+            "success" => true,
             "message" => "Password modificata con successo"
         ]);
-    } else {
-        http_response_code(500);
-        echo json_encode([
-            "success" => false, 
-            "message" => "Errore durante il cambio password"
-        ]);
     }
-    
+
+    Response::error("Errore durante il cambio password", 500);
 } catch (PDOException $e) {
-    http_response_code(500);
-    echo json_encode([
-        "success" => false, 
-        "message" => "Errore del database: " . $e->getMessage()
-    ]);
+    Response::error("Errore del database", 500);
 } catch (Exception $e) {
-    http_response_code(500);
-    echo json_encode([
-        "success" => false, 
-        "message" => "Errore del server: " . $e->getMessage()
-    ]);
+    Response::error("Errore del server", 500);
 }

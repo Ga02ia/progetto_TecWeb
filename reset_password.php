@@ -1,74 +1,47 @@
 <?php
-header('Content-Type: application/json');
-require_once 'dbConnection.php';
-require_once 'classes/Utente.php';
+require_once __DIR__ . '/dbConnection.php';
+require_once __DIR__ . '/classes/Utente.php';
 
-// Accetta solo POST
+require_once __DIR__ . '/src/support/response.php';
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    echo json_encode(["success" => false, "message" => "Metodo non consentito"]);
-    exit();
+    Response::error("Metodo non consentito", 405);
+}
+
+$data = json_decode(file_get_contents('php://input'), true);
+
+if (!$data || !isset($data['email'], $data['newPassword'])) {
+    Response::error("Dati mancanti", 400);
+}
+
+$email = trim((string)$data['email']);
+$newPassword = (string)$data['newPassword'];
+
+if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    Response::error("Email non valida", 400);
+}
+
+if (strlen($newPassword) < 6) {
+    Response::error("La password deve essere di almeno 6 caratteri", 400);
 }
 
 try {
-    // Leggi i dati JSON
-    $data = json_decode(file_get_contents('php://input'), true);
-    
-    if (!$data || !isset($data['email']) || !isset($data['newPassword'])) {
-        http_response_code(400);
-        echo json_encode(["success" => false, "message" => "Dati mancanti"]);
-        exit();
-    }
-    
-    $email = trim($data['email']);
-    $newPassword = $data['newPassword'];
-    
-    // Validazione email
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        http_response_code(400);
-        echo json_encode(["success" => false, "message" => "Email non valida"]);
-        exit();
-    }
-    
-    // Validazione password
-    if (strlen($newPassword) < 6) {
-        http_response_code(400);
-        echo json_encode(["success" => false, "message" => "La password deve essere di almeno 6 caratteri"]);
-        exit();
-    }
-    
-    // Cerca l'utente per email
     $utente = new Utente($conn);
+
     if (!$utente->caricaDaEmail($email)) {
-        http_response_code(404);
-        echo json_encode(["success" => false, "message" => "Email non trovata nel sistema"]);
-        exit();
+        Response::error("Email non trovata nel sistema", 404);
     }
-    
-    // Aggiorna la password
+
     if ($utente->aggiorna(['password' => $newPassword])) {
-        echo json_encode([
-            "success" => true, 
+        Response::json([
+            "success" => true,
             "message" => "Password reimpostata con successo"
         ]);
-    } else {
-        http_response_code(500);
-        echo json_encode([
-            "success" => false, 
-            "message" => "Errore durante il reset della password"
-        ]);
     }
-    
+
+    Response::error("Errore durante il reset della password", 500);
 } catch (PDOException $e) {
-    http_response_code(500);
-    echo json_encode([
-        "success" => false, 
-        "message" => "Errore del database: " . $e->getMessage()
-    ]);
+    Response::error("Errore del database", 500);
 } catch (Exception $e) {
-    http_response_code(500);
-    echo json_encode([
-        "success" => false, 
-        "message" => "Errore del server: " . $e->getMessage()
-    ]);
+    Response::error("Errore del server", 500);
 }

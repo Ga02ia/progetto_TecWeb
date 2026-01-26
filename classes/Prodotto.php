@@ -299,8 +299,8 @@ class Prodotto {
     public static function handleApiRequest($conn, $requireAdmin = false) {
         header('Content-Type: application/json');
         
-        // Controllo admin se richiesto
-        if ($requireAdmin) {
+        // Controllo admin se richiesto (solo se la sessione non è già stata controllata)
+        if ($requireAdmin && session_status() !== PHP_SESSION_ACTIVE) {
             session_start();
             if (!isset($_SESSION['authenticated']) || $_SESSION['ruolo'] != 1) {
                 http_response_code(403);
