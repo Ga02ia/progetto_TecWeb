@@ -415,7 +415,7 @@ function initLoginView() {
     loginBtn.disabled = true;
 
     try {
-      const response = await fetch("login.php", {
+      const response = await fetch("api/auth/login.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "same-origin",
@@ -527,7 +527,7 @@ function initRegistrazioneView() {
     registerBtn.disabled = true;
 
     try {
-      const response = await fetch("registrazione.php", {
+      const response = await fetch("api/auth/registrazione.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "same-origin",

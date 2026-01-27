@@ -12,13 +12,13 @@ function initDettaglioProdottoPage(productId) {
 window.initDettaglioProdottoPage = initDettaglioProdottoPage;
 
 // Per compatibilità con vecchio modo (se aperto direttamente)
-if (window.location.search) {
-  const urlParams = new URLSearchParams(window.location.search);
-  const productId = urlParams.get("id");
-  if (productId) {
-    initDettaglioProdottoPage(productId);
-  }
-}
+// if (window.location.search) {
+//   const urlParams = new URLSearchParams(window.location.search);
+//   const productId = urlParams.get("id");
+//   if (productId) {
+//     initDettaglioProdottoPage(productId);
+//   }
+// }
 
 // Carica i dettagli del prodotto
 function loadProductDetail(id) {
@@ -43,23 +43,15 @@ function displayProductDetail(product) {
 
   // Gestisce immagine
   let imageHtml = "";
-  if (product.image_path && product.image_path.includes("pinterest.com")) {
-    // Placeholder per link Pinterest
-    const colors = [
-      "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-      "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
-      "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
-      "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)",
-      "linear-gradient(135deg, #fa709a 0%, #fee140 100%)",
-      "linear-gradient(135deg, #30cfd0 0%, #330867 100%)",
-    ];
-    const colorIndex = product.id % colors.length;
-    imageHtml = `<div class="product-detail-image" style="background: ${colors[colorIndex]};">
-      <div class="product-image-placeholder">🖼️</div>
-    </div>`;
-  } else if (product.image_path) {
-    imageHtml = `<div class="product-detail-image" style="background-image: url('${product.image_path}');"></div>`;
+  // Se c'è un'immagine, costruisci il percorso corretto
+  if (product.image_path && product.image_path.trim() !== "") {
+    // Usa window.image_path definito in utils.js
+    const basePath = window.image_path || "/progetto_TecWeb/img/";
+    const fullPath = basePath + product.image_path;
+    // Assegna l'URL
+    imageHtml = `<div class="product-detail-image" style="background-image: url('${fullPath}');"></div>`;
   } else {
+    // Fallback se manca l'immagine
     imageHtml = `<div class="product-detail-image" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
       <div class="product-image-placeholder">🖼️</div>
     </div>`;
@@ -164,41 +156,14 @@ function setupQuantityControls() {
 function addToCart(product) {
   const quantity = parseInt(document.getElementById("quantityInput").value);
 
-  // Recupera il carrello dal localStorage
-  let cart = [];
-  const savedCart = localStorage.getItem("artly_cart");
-  if (savedCart) {
-    try {
-      cart = JSON.parse(savedCart);
-    } catch (e) {
-      cart = [];
-    }
+  // Aggiungi il prodotto al carrello usando lo store
+  // Aggiungi più volte in base alla quantità selezionata
+  for (let i = 0; i < quantity; i++) {
+    store.addToCart(product);
   }
-
-  // Verifica se il prodotto è già nel carrello
-  const existingIndex = cart.findIndex((item) => item.id === product.id);
-
-  if (existingIndex >= 0) {
-    // Incrementa la quantità
-    cart[existingIndex].quantity =
-      (cart[existingIndex].quantity || 1) + quantity;
-  } else {
-    // Aggiungi nuovo prodotto
-    cart.push({
-      id: product.id,
-      titolo: product.titolo,
-      autore: product.autore,
-      prezzo: product.prezzo,
-      image_path: product.image_path,
-      quantity: quantity,
-    });
-  }
-
-  // Salva il carrello aggiornato
-  localStorage.setItem("artly_cart", JSON.stringify(cart));
 
   // Aggiorna il contatore del carrello
-  const totalItems = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
+  const totalItems = store.getCartCount();
   const cartCountEl = document.getElementById("cartCount");
   if (cartCountEl) {
     cartCountEl.textContent = totalItems;
@@ -213,7 +178,7 @@ function addToCart(product) {
   document.getElementById("quantityInput").value = 1;
 
   // Mostra il modale del carrello
-  showCartModal(product, cart);
+  showCartModal(product, store.getCart());
 }
 
 // Mostra messaggio di errore
@@ -278,9 +243,25 @@ function closeCartModal() {
 }
 
 function createCartProductHTML(item) {
+  let bgStyle = "";
+
+  if (item.image_path && item.image_path.trim() !== "") {
+    // Usa window.image_path globale
+    const basePath = window.image_path || "/progetto_TecWeb/img/";
+    const imgName = item.image_path.startsWith("/")
+      ? item.image_path.substring(1)
+      : item.image_path;
+    const fullPath = basePath + imgName;
+
+    // Costruisce lo stile corretto
+    bgStyle = `background-image: url('${fullPath}'); background-size: cover; background-position: center;`;
+  } else {
+    bgStyle = `background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);`;
+  }
+
   return `
     <div class="cart-modal-product">
-      <div class="cart-modal-product-image" style="background-image: url('${item.image_path || ""}');"></div>
+      <div class="cart-modal-product-image" style="${bgStyle}"></div>
       <div class="cart-modal-product-info">
         <h4>${item.titolo}</h4>
         <p class="cart-modal-product-author">${item.autore}</p>
@@ -323,7 +304,7 @@ if (cartModal) {
 
 // Funzioni per gestire i preferiti
 function checkIfFavorite(productId) {
-  fetch("manage_preferiti.php", {
+  fetch("api/user/manage_preferiti.php", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -349,7 +330,7 @@ function toggleFavorite(productId) {
   const heartIcon = favoriteBtn.querySelector(".heart-icon");
   const isFavorite = heartIcon.textContent === "❤️";
 
-  fetch("manage_preferiti.php", {
+  fetch("api/user/manage_preferiti.php", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

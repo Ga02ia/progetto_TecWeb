@@ -22,7 +22,7 @@ function checkAuthAndLoadFavorites() {
 }
 
 function loadFavorites() {
-  fetch("get_preferiti.php")
+  fetch("api/user/preferiti.php")
     .then((response) => response.json())
     .then((data) => {
       if (data.success) {
@@ -108,9 +108,9 @@ function displayFavorites(preferiti) {
   container.innerHTML = html;
 }
 
-// CAMBIATA: ora manda JSON (non FormData) a manage_preferiti.php
+// CAMBIATA: ora manda JSON (non FormData) a api/user/manage_preferiti.php
 function removeFavorite(productId) {
-  fetch("manage_preferiti.php", {
+  fetch("api/user/manage_preferiti.php", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({

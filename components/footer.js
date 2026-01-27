@@ -42,6 +42,7 @@ class FooterComponent {
             <a href="#" data-link>Termini</a>
           </div>
         </div>
+          <div id="toast" class="toast"></div>
       </footer>
     `;
   }

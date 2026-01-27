@@ -297,7 +297,7 @@ class HeaderComponent {
   // Gestisce il logout
   async handleLogout() {
     try {
-      const response = await fetch("logout.php");
+      const response = await fetch("api/auth/logout.php");
       const data = await response.json();
 
       if (data.success) {

@@ -168,7 +168,7 @@ async function handleProfileUpdate(e) {
 
 // Carica lo storico ordini
 function loadUserOrders() {
-  fetch("get_ordini.php")
+  fetch("api/user/ordini.php")
     .then((response) => response.json())
     .then((data) => {
       if (data.success) {
@@ -246,7 +246,7 @@ function displayOrders(ordini) {
 
 // Funzione per riordinare (aggiunge tutti i prodotti dell'ordine al carrello)
 function reorderItems(orderId) {
-  fetch("get_ordini.php")
+  fetch("api/user/ordini.php")
     .then((response) => response.json())
     .then((data) => {
       if (!data.success) {

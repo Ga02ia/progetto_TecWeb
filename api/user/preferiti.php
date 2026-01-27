@@ -1,7 +1,7 @@
 <?php
-require_once __DIR__ . '/dbConnection.php';
-require_once __DIR__ . '/src/support/Response.php';
-require_once __DIR__ . '/src/support/Auth.php';
+require_once __DIR__ . '/../../dbConnection.php';
+require_once __DIR__ . '/../../src/support/Response.php';
+require_once __DIR__ . '/../../src/support/Auth.php';
 
 Auth::requireLogin();
 

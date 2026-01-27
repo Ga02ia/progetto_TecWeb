@@ -1,13 +1,25 @@
 // Utils - Funzioni di utilità riutilizzabili
 
+//variabile globale per definizione del percorso delle immagini
+window.image_path = "/progetto_TecWeb/img/";
+
 // Toast notifications
 let toastTimeout;
 
-function showToast(message) {
+function showToast(message, type = "normal") {
   const toast = document.getElementById("toast");
   if (!toast) return;
 
   toast.textContent = message;
+
+  // Resetta le classi per evitare che rimanga rosso
+  toast.className = "toast";
+
+  // Aggiunge classe specifica se è un errore
+  if (type === "error") {
+    toast.classList.add("toast--error");
+  }
+
   toast.classList.add("toast--visible");
 
   clearTimeout(toastTimeout);
@@ -15,7 +27,6 @@ function showToast(message) {
     toast.classList.remove("toast--visible");
   }, 2200);
 }
-
 // Mostra messaggi nei form
 function showMessage(message, type) {
   const oldMsg = document.querySelector(".form-message");
@@ -53,6 +64,7 @@ async function checkUserAuth() {
     const data = await response.json();
 
     if (data.authenticated) {
+      //utente loggato aggiorna dati utenti
       const userData = {
         nome: data.nome,
         cognome: data.cognome,
@@ -70,7 +82,7 @@ async function checkUserAuth() {
         store.logout(); // Svuota carrello e dati utente
         router.navigate("/home");
       } else {
-        // Non svuotare il carrello, solo pulire i dati utente
+        // mantiene carrello locale
         store.clearUser();
       }
     }

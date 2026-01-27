@@ -74,33 +74,39 @@ function initCarrelloPage() {
     const itemDiv = document.createElement("div");
     itemDiv.className = "cart-item";
 
-    // Immagine
+    // ----------------IMMAGINE----------------
     const imageDiv = document.createElement("div");
     imageDiv.className = "cart-item-image";
 
-    if (item.image_path && item.image_path.includes("pinterest.com")) {
-      const colors = [
-        "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-        "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
-        "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
-        "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)",
-        "linear-gradient(135deg, #fa709a 0%, #fee140 100%)",
-        "linear-gradient(135deg, #30cfd0 0%, #330867 100%)",
-      ];
-      const colorIndex = item.id % colors.length;
-      imageDiv.style.background = colors[colorIndex];
-      imageDiv.innerHTML =
-        '<span style="font-size: 2rem; opacity: 0.7">🖼️</span>';
-    } else if (item.image_path) {
-      imageDiv.style.backgroundImage = `url('${item.image_path}')`;
-      imageDiv.style.backgroundSize = "cover";
-      imageDiv.style.backgroundPosition = "center";
+    // Stili essenziali per assicurare che l'immagine si veda
+    imageDiv.style.backgroundSize = "cover";
+    imageDiv.style.backgroundPosition = "center";
+    imageDiv.style.backgroundRepeat = "no-repeat";
+
+    // Se nel DB c'è il nome del file
+    if (item.image_path && item.image_path.trim() !== "") {
+      // 1. Recupera il percorso base (da utils.js o fallback)
+      const basePath = window.image_path || "/progetto_TecWeb/img/";
+
+      // 2. Pulisce il nome file (rimuove lo slash iniziale se presente per evitare doppi slash)
+      const imgName = item.image_path.startsWith("/")
+        ? item.image_path.substring(1)
+        : item.image_path;
+
+      // 3. Crea il percorso completo
+      const fullPath = basePath + imgName;
+
+      // DEBUG CORRETTO: Uso 'item.titolo' (prima era 'product.titolo' e rompeva tutto!)
+      console.log(`🖼️ Caricamento img carrello: ${item.titolo} -> ${fullPath}`);
+
+      imageDiv.style.backgroundImage = `url('${fullPath}')`;
     } else {
+      // FALLBACK: Gradiente se non c'è immagine
       imageDiv.style.background =
         "linear-gradient(135deg, #667eea 0%, #764ba2 100%)";
     }
 
-    // Info prodotto
+    //----------------Info prodotto----------------
     const infoDiv = document.createElement("div");
     infoDiv.className = "cart-item-info";
 
@@ -109,7 +115,7 @@ function initCarrelloPage() {
 
     const author = document.createElement("p");
     author.className = "cart-item-author";
-    author.textContent = `by ${item.autore}`;
+    author.textContent = item.autore ? `by ${item.autore}` : "";
 
     const category = document.createElement("span");
     category.className = "tag";
@@ -119,7 +125,7 @@ function initCarrelloPage() {
     infoDiv.appendChild(author);
     infoDiv.appendChild(category);
 
-    // Controlli quantità
+    // ----------------Controlli quantità----------------
     const quantityDiv = document.createElement("div");
     quantityDiv.className = "cart-item-quantity";
 
@@ -316,7 +322,7 @@ function initCarrelloPage() {
 
   // Carica prodotti consigliati (ultimi 4 prodotti diversi da quelli nel carrello)
   function loadRecommendedProducts() {
-    fetch("api/prodotti.php")
+    fetch("/progetto_TecWeb/api/prodotti.php")
       .then((response) => response.json())
       .then((data) => {
         if (data.success && data.data) {
@@ -347,31 +353,43 @@ function initCarrelloPage() {
     });
   }
 
-  // Crea card prodotto consigliato (versione semplificata)
+  // Crea card prodotto consigliato
   function createRecommendedProductCard(product) {
     const card = document.createElement("div");
     card.className = "product-card";
+    card.style.cursor = "pointer";
+
+    // Click sulla card per andare al dettaglio
+    card.addEventListener("click", (e) => {
+      // Se clicco sul bottone "Aggiungi", non navigo
+      if (e.target.tagName === "BUTTON") return;
+
+      if (typeof navigateTo === "function") {
+        navigateTo(`/dettaglio-prodotto?id=${product.id}`);
+      } else {
+        window.location.hash = `#/dettaglio-prodotto?id=${product.id}`;
+      }
+    });
 
     const imageDiv = document.createElement("div");
     imageDiv.className = "product-image";
+    // Forza le dimensioni nel caso il CSS non carichi subito
+    imageDiv.style.height = "280px";
+    imageDiv.style.backgroundSize = "cover";
+    imageDiv.style.backgroundPosition = "center";
 
-    if (product.image_path && product.image_path.includes("pinterest.com")) {
-      const colors = [
-        "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-        "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
-        "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
-        "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)",
-        "linear-gradient(135deg, #fa709a 0%, #fee140 100%)",
-        "linear-gradient(135deg, #30cfd0 0%, #330867 100%)",
-      ];
-      const colorIndex = product.id % colors.length;
-      imageDiv.style.background = colors[colorIndex];
-      const overlay = document.createElement("div");
-      overlay.className = "product-image-overlay";
-      overlay.innerHTML = `<span>🖼️</span>`;
-      imageDiv.appendChild(overlay);
-    } else if (product.image_path) {
-      imageDiv.style.backgroundImage = `url('${product.image_path}')`;
+    if (product.image_path && product.image_path.trim() !== "") {
+      // Logica percorso unificata
+      const basePath = window.image_path || "/progetto_TecWeb/img/";
+      const imgName = product.image_path.startsWith("/")
+        ? product.image_path.substring(1)
+        : product.image_path;
+      const fullPath = basePath + imgName;
+
+      imageDiv.style.backgroundImage = `linear-gradient(135deg, rgba(5, 8, 22, 0.4), transparent), url('${fullPath}')`;
+    } else {
+      imageDiv.style.background =
+        "linear-gradient(135deg, #667eea 0%, #764ba2 100%)";
     }
 
     const bodyDiv = document.createElement("div");
@@ -387,7 +405,10 @@ function initCarrelloPage() {
     const addButton = document.createElement("button");
     addButton.className = "btn btn-sm";
     addButton.textContent = "Aggiungi";
-    addButton.onclick = () => addRecommendedToCart(product);
+    addButton.onclick = (e) => {
+      e.stopPropagation(); // Previene la navigazione quando clicco sul bottone
+      addRecommendedToCart(product);
+    };
 
     bodyDiv.appendChild(title);
     bodyDiv.appendChild(price);

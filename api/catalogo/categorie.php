@@ -1,6 +1,6 @@
 <?php
-require_once __DIR__ . '/dbConnection.php';
-require_once __DIR__ . '/src/support/Response.php';
+require_once __DIR__ . '/../../dbConnection.php';
+require_once __DIR__ . '/../../src/support/response.php';
 
 try {
     $stmt = $conn->prepare("SELECT id, nome FROM categorie ORDER BY nome ASC");

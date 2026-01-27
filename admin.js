@@ -35,7 +35,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 // Carica categorie
 async function loadCategories() {
   try {
-    const response = await fetch("get_categorie.php");
+    const response = await fetch("api/catalogo/categorie.php");
     const data = await response.json();
     if (data.success) {
       allCategories = data.data; // Corretto da data.categorie a data.data
@@ -209,33 +209,35 @@ function setupProductForm() {
     return;
   }
 
-  productForm.addEventListener("submit", async (e) => {
+  // Rimuove eventuali listener precedenti per evitare duplicati
+  const newProductForm = productForm.cloneNode(true);
+  productForm.parentNode.replaceChild(newProductForm, productForm);
+
+  newProductForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     const productId = document.getElementById("product-id").value;
-    const categoriaValue = document.getElementById("product-categoria").value;
-
     const productData = {
       titolo: document.getElementById("product-titolo").value,
       descrizione: document.getElementById("product-descrizione").value,
       autore: document.getElementById("product-autore").value,
-      prezzo: parseFloat(document.getElementById("product-prezzo").value),
+      prezzo: document.getElementById("product-prezzo").value,
       image_path: document.getElementById("product-image").value,
-      id_categoria: categoriaValue ? parseInt(categoriaValue) : null,
+      id_categoria: document.getElementById("product-categoria").value || null,
     };
 
     try {
       let response;
       if (productId) {
-        // Modifica (PATCH)
-        productData.id = parseInt(productId);
+        //modifica (PATCH)
+        productData.id = productId;
         response = await fetch("api/admin/prodotti.php", {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(productData),
         });
       } else {
-        // Creazione (POST)
+        //creazione (POST)
         response = await fetch("api/admin/prodotti.php", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -246,20 +248,18 @@ function setupProductForm() {
       const data = await response.json();
 
       if (data.success) {
-        alert(data.message);
         closeProductModal();
         await loadProducts();
-        updateDashboardStats();
+        showToast(data.message || "Prodotto salvato con successo!", "success");
       } else {
-        alert("Errore: " + data.message);
+        showError("Errore: " + data.message, "error");
       }
     } catch (error) {
       console.error("Errore:", error);
-      alert("Errore durante il salvataggio del prodotto");
+      showError("Errore di connessione durante il salvataggio", "error");
     }
   });
 }
-
 async function deleteProduct(productId) {
   if (!confirm("Sei sicuro di voler eliminare questo prodotto?")) return;
 
@@ -273,15 +273,15 @@ async function deleteProduct(productId) {
     const data = await response.json();
 
     if (data.success) {
-      alert(data.message);
+      closeProductModal();
       await loadProducts();
-      updateDashboardStats();
+      showToast(data.message || "Prodotto eliminato con successo!", "success");
     } else {
-      alert("Errore: " + data.message);
+      showError("Errore: " + data.message);
     }
   } catch (error) {
     console.error("Errore:", error);
-    alert("Errore durante l'eliminazione del prodotto");
+    showError("Errore durante l'eliminazione del prodotto");
   }
 }
 
@@ -505,15 +505,15 @@ async function toggleBlockUser(userId, blocked) {
     const data = await response.json();
 
     if (data.success) {
-      alert(data.message);
+      showToast(data.message);
       await loadUsers();
       updateDashboardStats();
     } else {
-      alert("Errore: " + data.message);
+      showError("Errore: " + data.message);
     }
   } catch (error) {
     console.error("Errore:", error);
-    alert("Errore durante l'operazione");
+    showError("Errore durante l'operazione");
   }
 }
 
@@ -534,15 +534,15 @@ async function toggleAdminRole(userId, ruolo) {
     const data = await response.json();
 
     if (data.success) {
-      alert(data.message);
+      showToast(data.message);
       await loadUsers();
       updateDashboardStats();
     } else {
-      alert("Errore: " + data.message);
+      showError("Errore: " + data.message);
     }
   } catch (error) {
     console.error("Errore:", error);
-    alert("Errore durante l'operazione");
+    showError("Errore durante l'operazione");
   }
 }
 
@@ -608,7 +608,7 @@ function showError(message) {
 function logout() {
   if (confirm("Sei sicuro di voler uscire?")) {
     // Usa il metodo di logout dell'header component
-    fetch("logout.php")
+    fetch("api/auth/logout.php")
       .then((response) => response.json())
       .then((data) => {
         if (data.success) {

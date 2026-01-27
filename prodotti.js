@@ -32,9 +32,12 @@ function initProdottiPage() {
   let allProducts = [];
   let filteredProducts = [];
 
+  //questa riga serve per il path delle immagini
+  const image_path = "/progetto_TecWeb/img/";
+
   // Carica le categorie dal database
   function loadCategories() {
-    fetch("get_categorie.php")
+    fetch("api/catalogo/categorie.php")
       .then((response) => response.json())
       .then((data) => {
         if (data.success && data.data && data.data.length > 0) {
@@ -106,50 +109,38 @@ function initProdottiPage() {
     card.className = "product-card";
     card.style.cursor = "pointer";
 
-    // Rendi l'intera card cliccabile (escluso il pulsante aggiungi)
+    // Rendi l'intera card cliccabile
     card.addEventListener("click", (e) => {
-      // Se il click è sul pulsante, non fare nulla (sarà gestito dall'event delegation)
-      if (e.target.closest(".add-to-cart")) {
-        return;
+      if (e.target.closest(".add-to-cart")) return;
+
+      // usa il  router
+      if (window.router) {
+        window.router.navigate(`/dettaglio-prodotto?id=${product.id}`);
+      } else {
+        // Fallback se il router non fosse globale
+        console.error("Router non trovato!");
       }
-      // Altrimenti vai alla pagina dettaglio
-      window.location.href = `dettaglio-prodotto.html?id=${product.id}`;
     });
 
     // Immagine del prodotto
     const imageDiv = document.createElement("div");
     imageDiv.className = "product-image";
 
-    // Gestisce URL Pinterest o path locali
-    let imagePath = product.image_path;
+    // variabile per gestione dell'immagine
+    let finalImageStyle;
 
-    // Se è un URL Pinterest, usa un placeholder o estrai l'ID per usare un'immagine diretta
-    if (imagePath && imagePath.includes("pinterest.com")) {
-      // Usa un'immagine placeholder colorata basata sull'ID del prodotto
-      const colors = [
-        "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-        "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
-        "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
-        "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)",
-        "linear-gradient(135deg, #fa709a 0%, #fee140 100%)",
-        "linear-gradient(135deg, #30cfd0 0%, #330867 100%)",
-      ];
-      const colorIndex = product.id % colors.length;
-      imageDiv.style.background = colors[colorIndex];
-
-      // Aggiungi un overlay con il titolo
-      const overlay = document.createElement("div");
-      overlay.className = "product-image-overlay";
-      overlay.innerHTML = `<span>🖼️</span>`;
-      imageDiv.appendChild(overlay);
-    } else if (imagePath) {
-      // Path locale o URL diretto
-      imageDiv.style.backgroundImage = `linear-gradient(135deg, rgba(5, 8, 22, 0.4), transparent), url('${imagePath}')`;
+    // Se nel DB c'è il nome del file
+    if (product.image_path && product.image_path.trim() !== "") {
+      //variabile del percorso completo
+      const fullPath = image_path + product.image_path;
+      //assegna l'immagine
+      finalImageStyle = `linear-gradient(135deg, rgba(5, 8, 22, 0.4), transparent), url('${fullPath}')`;
     } else {
-      // Nessuna immagine
-      imageDiv.style.background =
-        "linear-gradient(135deg, #667eea 0%, #764ba2 100%)";
+      // FALLBACK: Se non c'è immagine nel DB, usa i colori random
+      finalImageStyle = "linear-gradient(135deg, #667eea 0%, #764ba2 100%)";
     }
+    //aplica l'immagine
+    imageDiv.style.backgroundImage = finalImageStyle;
 
     // Body della card
     const bodyDiv = document.createElement("div");
@@ -282,36 +273,14 @@ function initProdottiPage() {
     const product = allProducts.find((p) => p.id == productId);
     if (!product) return;
 
-    // Recupera il carrello dal localStorage
-    let cart = [];
-    const savedCart = localStorage.getItem("artly_cart");
-    if (savedCart) {
-      try {
-        cart = JSON.parse(savedCart);
-      } catch (e) {
-        cart = [];
-      }
-    }
-
-    // Verifica se il prodotto è già nel carrello
-    const existingIndex = cart.findIndex((item) => item.id === product.id);
-
-    if (existingIndex >= 0) {
-      // Incrementa la quantità
-      cart[existingIndex].quantity = (cart[existingIndex].quantity || 1) + 1;
-    } else {
-      // Aggiungi nuovo prodotto
-      cart.push({ ...product, quantity: 1 });
-    }
-
-    // Salva il carrello
-    localStorage.setItem("artly_cart", JSON.stringify(cart));
+    // Usa lo store globale per gestire il carrello
+    const newCount = store.addToCart(product);
 
     // Aggiorna il contatore del carrello nell'header
-    updateCartCountDisplay(cart);
+    updateCartCountDisplay(store.getCart());
 
     // Mostra modale riepilogo
-    showCartModal(product, cart);
+    showCartModal(product, store.getCart());
 
     // Mostra notifica
     if (typeof showToast === "function") {
@@ -329,23 +298,20 @@ function initProdottiPage() {
     const qty = product.quantity || 1;
     let imageHTML = "";
 
-    if (product.image_path && product.image_path.includes("pinterest.com")) {
-      const colors = [
-        "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-        "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
-        "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
-        "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)",
-        "linear-gradient(135deg, #fa709a 0%, #fee140 100%)",
-        "linear-gradient(135deg, #30cfd0 0%, #330867 100%)",
-      ];
-      const colorIndex = product.id % colors.length;
-      imageHTML = `<div class="cart-modal-image" style="background: ${colors[colorIndex]}">
-        <span style="font-size: 2.2rem; opacity: 0.75">🖼️</span>
-      </div>`;
-    } else if (product.image_path) {
-      imageHTML = `<div class="cart-modal-image" style="background-image: linear-gradient(135deg, rgba(5, 8, 22, 0.4), transparent), url('${product.image_path}'); background-size: cover; background-position: center;"></div>`;
+    // Usa la costante globale definita sopra
+    const basePath = window.image_path || "/progetto_TecWeb/img/";
+
+    // Pulizia path
+    let imgPath = "";
+    if (product.image_path && product.image_path.trim() !== "") {
+      const cleanPath = product.image_path.startsWith("/")
+        ? product.image_path.substring(1)
+        : product.image_path;
+      imgPath = basePath + cleanPath;
+
+      imageHTML = `<div class="cart-modal-image" style="background-image: url('${imgPath}'); background-size: cover; background-position: center;"></div>`;
     } else {
-      imageHTML = `<div class="cart-modal-image" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)"></div>`;
+      imageHTML = `<div class="cart-modal-image" style="background: #667eea;"></div>`;
     }
 
     return `
@@ -444,11 +410,12 @@ function initProdottiPage() {
   // Aggiorna il contatore del carrello nell'header
   function updateCartCountDisplay(cart) {
     const cartCountEl = document.getElementById("cartCount");
+
+    // calcolo totale pezzi usando lo store
+    const totalItems = store.getCartCount();
+
+    // aggiorna il numero a schermo
     if (cartCountEl) {
-      const totalItems = cart.reduce(
-        (sum, item) => sum + (item.quantity || 1),
-        0,
-      );
       cartCountEl.textContent = totalItems;
     }
   }
@@ -461,22 +428,27 @@ function initProdottiPage() {
         const cart = JSON.parse(savedCart);
         updateCartCountDisplay(cart);
       } catch (e) {
-        // Ignora errori
+        // Inizializza il contatore del carrello all'avvio
+        function initCartCount() {
+          // Lo store ha già caricato il carrello dal localStorage
+          // Basta aggiornare la visualizzazione
+          updateCartCountDisplay(store.getCart());
+        }
+        sole.log("📦 prodotti.js: Fine definizione funzione initProdottiPage");
+
+        // Esponi la funzione globalmente per la SPA
+        window.initProdottiPage = initProdottiPage;
+        console.log(
+          "✅ prodotti.js: window.initProdottiPage esposta =",
+          typeof window.initProdottiPage,
+        );
       }
     }
   }
 
-  // Carica i prodotti all'avvio
-  initCartCount();
+  // Carica categorie e prodotti all'avvio
   loadCategories();
   loadProducts();
+  initCartCount();
 }
-
 console.log("📦 prodotti.js: Fine definizione funzione initProdottiPage");
-
-// Esponi la funzione globalmente per la SPA
-window.initProdottiPage = initProdottiPage;
-console.log(
-  "✅ prodotti.js: window.initProdottiPage esposta =",
-  typeof window.initProdottiPage,
-);

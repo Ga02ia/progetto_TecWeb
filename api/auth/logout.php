@@ -1,6 +1,6 @@
 <?php
-require_once __DIR__ . '/src/support/response.php';
-require_once __DIR__ . '/src/support/auth.php';
+require_once __DIR__ . '/../../src/support/response.php';
+require_once __DIR__ . '/../../src/support/auth.php';
 
 Auth::start();
 session_destroy();

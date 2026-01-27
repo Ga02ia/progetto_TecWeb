@@ -165,3 +165,4 @@ class Router {
 
 // Esporta un'istanza singleton del router
 const router = new Router();
+window.router = router; // Rende il router accessibile globalmente
