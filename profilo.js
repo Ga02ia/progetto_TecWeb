@@ -15,7 +15,8 @@ function checkAuthAndLoadProfile() {
     .then((data) => {
       if (!data.authenticated) {
         // Se non è loggato, reindirizza al login
-        window.location.href = "login.html";
+        const redirectUrl = encodeURIComponent("/profilo");
+        window.location.href = `login.html?redirect=${redirectUrl}`;
         return;
       }
       // Salva i dati utente
@@ -26,7 +27,8 @@ function checkAuthAndLoadProfile() {
     })
     .catch((error) => {
       console.error("Errore verifica autenticazione:", error);
-      window.location.href = "login.html";
+      const redirectUrl = encodeURIComponent("/profilo");
+      window.location.href = `login.html?redirect=${redirectUrl}`;
     });
 }
 

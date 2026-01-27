@@ -802,26 +802,28 @@ body {
 
 .collection-image {
   height: 180px;
-  background-size: cover;
-  background-position: center;
+  position: relative;
+  overflow: hidden;
+  background: var(--bg-elevated);
 }
 
-.collection-image-1 {
-  background-image:
-    linear-gradient(135deg, rgba(5, 8, 22, 0.5), transparent),
-    url("https://via.placeholder.com/600x400.png?text=Astratto");
+.collection-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
 }
 
-.collection-image-2 {
-  background-image:
-    linear-gradient(135deg, rgba(5, 8, 22, 0.5), transparent),
-    url("https://via.placeholder.com/600x400.png?text=Urbano");
-}
-
-.collection-image-3 {
-  background-image:
-    linear-gradient(135deg, rgba(5, 8, 22, 0.5), transparent),
-    url("https://via.placeholder.com/600x400.png?text=Botanico");
+.collection-image::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(5, 8, 22, 0.4), transparent);
+  pointer-events: none;
 }
 
 .collection-body {
@@ -894,6 +896,7 @@ body {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  height: 100%; /* Assicura che tutte le card abbiano la stessa altezza */
 }
 
 .product-image {
@@ -953,17 +956,28 @@ body {
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
+  flex: 1; /* Fa sì che il body occupi tutto lo spazio disponibile */
 }
 
 .product-body h3 {
   margin: 0;
   font-size: 0.95rem;
+  min-height: 2.4rem; /* Altezza minima per 2 righe di titolo */
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* Limita a 2 righe */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .product-desc {
   margin: 0;
   color: var(--text-soft);
   font-size: 0.8rem;
+  min-height: 2.8rem; /* Altezza minima per 2-3 righe di descrizione */
+  display: -webkit-box;
+  -webkit-line-clamp: 3; /* Limita a 3 righe */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .product-meta {
@@ -1624,6 +1638,13 @@ body {
   min-width: 150px;
 }
 
+.filter-select option {
+  background-color: #0b1020;
+  background: #0b1020;
+  color: #f5f5f7;
+  padding: 0.5rem;
+}
+
 .filter-select:focus {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
@@ -1697,7 +1718,8 @@ body {
 }
 
 .product-price-container {
-  margin-top: 0.5rem;
+  margin-top: auto; /* Spinge prezzo e bottone in fondo */
+  padding-top: 0.5rem;
 }
 
 .product-price {
@@ -2096,11 +2118,15 @@ body {
   padding: 1.2rem;
   font-size: 1.05rem;
   font-weight: 700;
+  margin-top: 2rem;
   margin-bottom: 1.5rem;
   background: linear-gradient(135deg, var(--accent) 0%, #ff9060 100%);
   border: none;
   box-shadow: 0 4px 15px rgba(255, 122, 60, 0.3);
   transition: all 0.3s;
+  display: block;
+  text-align: center;
+  text-decoration: none;
 }
 
 .btn-checkout:hover {
@@ -2110,6 +2136,14 @@ body {
 
 .btn-checkout:active {
   transform: translateY(0);
+}
+
+/* Info pagamento sicuro */
+.checkout-secure {
+  text-align: center;
+  color: var(--text-soft);
+  font-size: 0.9rem;
+  margin: 1.5rem 0 0 0;
 }
 
 /* Info pagamento */
@@ -3775,6 +3809,8 @@ body.modal-open {
 
 .error-card {
   max-width: 500px;
+  margin: 0 auto;
+  text-align: center;
 }
 
 .error-code {
@@ -3972,9 +4008,9 @@ a[data-link] {
 }
 
 .items-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .items-list {
@@ -4079,7 +4115,7 @@ a[data-link] {
 
 .modal-content {
   background: var(--bg-elevated);
-  margin: 2rem;
+  margin: auto;
   padding: 2rem;
   border-radius: var(--radius-lg);
   border: 1px solid var(--border-subtle);
@@ -4136,6 +4172,31 @@ a[data-link] {
   font-size: 1rem;
   font-family: inherit;
   transition: all 0.3s ease;
+}
+
+.form-group select {
+  padding-right: 2.5rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23ffffff' d='M1.41 0L6 4.58 10.59 0 12 1.41l-6 6-6-6z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 12px 8px;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+.form-group select option {
+  background-color: #12182a;
+  background: #12182a;
+  color: #f5f5f7;
+  padding: 0.5rem;
+}
+
+/* Firefox: forza lo sfondo blu nelle opzioni */
+@-moz-document url-prefix() {
+  .form-group select option {
+    background-color: #12182a !important;
+  }
 }
 
 .form-group input:focus,

@@ -349,7 +349,11 @@ function toggleFavorite(productId) {
         if (data.message === "Non autenticato") {
           showToast("Effettua il login per aggiungere ai preferiti");
           setTimeout(() => {
-            window.location.href = "login.html";
+            // Codifica l'URL di redirect per gestire correttamente i parametri
+            const redirectUrl = encodeURIComponent(
+              `/dettaglio-prodotto?id=${productId}`,
+            );
+            window.location.href = `login.html?redirect=${redirectUrl}`;
           }, 1500);
         } else {
           showToast(data.message);

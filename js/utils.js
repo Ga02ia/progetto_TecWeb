@@ -70,6 +70,7 @@ async function checkUserAuth() {
         cognome: data.cognome,
         email: data.email,
         is_admin: data.is_admin || false,
+        ruolo: data.is_admin ? "admin" : "user", // Aggiungi campo ruolo per compatibilità
       };
       store.setUser(userData);
     } else {

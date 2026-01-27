@@ -28,6 +28,52 @@ function initCarrelloPage() {
     if (savedCart) {
       try {
         cart = JSON.parse(savedCart);
+
+        // Filtra prodotti invalidi (senza prezzo o titolo)
+        const validCart = cart.filter(
+          (item) => item.prezzo && item.titolo && item.id,
+        );
+
+        // Consolida prodotti duplicati (stesso ID)
+        const consolidatedCart = [];
+        validCart.forEach((item) => {
+          const existingIndex = consolidatedCart.findIndex(
+            (p) => p.id === item.id,
+          );
+          if (existingIndex !== -1) {
+            // Somma le quantità dei duplicati
+            consolidatedCart[existingIndex].quantity =
+              (consolidatedCart[existingIndex].quantity || 1) +
+              (item.quantity || 1);
+            console.log(
+              `🔗 Consolidato duplicato: ${item.titolo} (quantità totale: ${consolidatedCart[existingIndex].quantity})`,
+            );
+          } else {
+            // Aggiungi nuovo prodotto
+            consolidatedCart.push({ ...item });
+          }
+        });
+
+        // Se ci sono prodotti invalidi o duplicati, aggiorna
+        if (
+          validCart.length !== cart.length ||
+          consolidatedCart.length !== validCart.length
+        ) {
+          if (validCart.length !== cart.length) {
+            console.warn(
+              `⚠️ Rimossi ${cart.length - validCart.length} prodotti invalidi dal carrello`,
+            );
+          }
+          if (consolidatedCart.length !== validCart.length) {
+            console.warn(
+              `⚠️ Consolidati ${validCart.length - consolidatedCart.length} prodotti duplicati`,
+            );
+          }
+          cart = consolidatedCart;
+          store.setState({ cart: consolidatedCart });
+        } else {
+          cart = validCart;
+        }
       } catch (e) {
         cart = [];
       }
@@ -221,9 +267,23 @@ function initCarrelloPage() {
   function updateTotals() {
     let subtotal = 0;
 
-    cart.forEach((item) => {
-      subtotal += parseFloat(item.prezzo) * (item.quantity || 1);
+    console.log("🧮 Calcolo totali carrello:");
+    cart.forEach((item, idx) => {
+      // Salta item invalidi (senza prezzo o titolo)
+      if (!item.prezzo || !item.titolo) {
+        console.warn("⚠️ Prodotto invalido nel carrello:", item);
+        return;
+      }
+      const itemPrice = parseFloat(item.prezzo);
+      const itemQty = item.quantity || 1;
+      const itemTotal = itemPrice * itemQty;
+      console.log(
+        `  [${idx}] ${item.titolo}: €${itemPrice} x ${itemQty} = €${itemTotal.toFixed(2)}`,
+      );
+      subtotal += itemTotal;
     });
+
+    console.log(`📊 Subtotale: €${subtotal.toFixed(2)}`);
 
     // Spedizione gratuita sopra una certa soglia
     let shipping = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : shippingCost;
@@ -237,6 +297,9 @@ function initCarrelloPage() {
     // Applica sconto
     let total = subtotal + shipping - discountAmount;
     if (total < 0) total = 0;
+
+    console.log(`🚚 Spedizione: €${shipping.toFixed(2)}`);
+    console.log(`💰 Totale finale: €${total.toFixed(2)}`);
 
     subtotalEl.textContent = `€${subtotal.toFixed(2)}`;
     totalEl.textContent = `€${total.toFixed(2)}`;
@@ -364,10 +427,19 @@ function initCarrelloPage() {
       // Se clicco sul bottone "Aggiungi", non navigo
       if (e.target.tagName === "BUTTON") return;
 
-      if (typeof navigateTo === "function") {
-        navigateTo(`/dettaglio-prodotto?id=${product.id}`);
+      // Previeni comportamento di default
+      e.preventDefault();
+      e.stopPropagation();
+
+      // Usa il router globale
+      if (typeof router !== "undefined" && router.navigate) {
+        router.navigate(`/dettaglio-prodotto?id=${product.id}`);
       } else {
-        window.location.hash = `#/dettaglio-prodotto?id=${product.id}`;
+        // Fallback: usa history API
+        const path = `/dettaglio-prodotto?id=${product.id}`;
+        history.pushState(null, "", path);
+        // Triggera evento popstate per far reagire il router
+        window.dispatchEvent(new PopStateEvent("popstate"));
       }
     });
 

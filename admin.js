@@ -11,10 +11,36 @@ async function initAdminPage() {
 
   // Ottieni dati utente dallo store
   const user = store.getUser();
-  if (user) {
-    console.log("👤 Admin:", user.nome, user.cognome);
-    currentUser = user;
+
+  // Verifica che l'utente sia autenticato
+  if (!user || !store.isAuthenticated()) {
+    console.error("❌ Utente non autenticato");
+    if (typeof router !== "undefined") {
+      const redirectUrl = encodeURIComponent("/admin");
+      router.navigate(`/login?redirect=${redirectUrl}`);
+    } else {
+      window.location.href =
+        "login.html?redirect=" + encodeURIComponent("/admin");
+    }
+    return;
   }
+
+  // Verifica che l'utente sia admin
+  if (!store.isAdmin()) {
+    console.error("❌ Accesso negato: utente non è admin");
+    if (typeof showToast !== "undefined") {
+      showToast("Accesso negato: solo gli amministratori possono accedere");
+    }
+    if (typeof router !== "undefined") {
+      router.navigate("/home");
+    } else {
+      window.location.href = "index.html";
+    }
+    return;
+  }
+
+  console.log("👤 Admin:", user.nome, user.cognome);
+  currentUser = user;
 
   await loadCategories();
   await loadDashboardData();

@@ -90,7 +90,7 @@ function registerRoutes() {
     // Verifica che l'utente sia autenticato
     if (!store.isAuthenticated()) {
       showToast("Effettua il login per procedere");
-      router.navigate("/login");
+      router.navigate("/login?redirect=/checkout");
       return;
     }
 
@@ -105,13 +105,13 @@ function registerRoutes() {
   });
 
   // Login
-  router.addRoute("/login", async () => {
+  router.addRoute("/login", async (params) => {
     // Se già autenticato, reindirizza alla home
     if (store.isAuthenticated()) {
       router.navigate("/home");
       return;
     }
-    await loadView("login");
+    await loadView("login", params);
   });
 
   // Registrazione
@@ -129,7 +129,7 @@ function registerRoutes() {
     // Verifica autenticazione
     if (!store.isAuthenticated()) {
       showToast("Effettua il login per accedere al profilo");
-      router.navigate("/login");
+      router.navigate("/login?redirect=/profilo");
       return;
     }
     await loadView("profilo");
@@ -140,7 +140,7 @@ function registerRoutes() {
     // Verifica autenticazione
     if (!store.isAuthenticated()) {
       showToast("Effettua il login per vedere i preferiti");
-      router.navigate("/login");
+      router.navigate("/login?redirect=/preferiti");
       return;
     }
     await loadView("preferiti");
@@ -148,6 +148,20 @@ function registerRoutes() {
 
   // Admin
   router.addRoute("/admin", async () => {
+    // Verifica autenticazione
+    if (!store.isAuthenticated()) {
+      showToast("Effettua il login per accedere");
+      router.navigate("/login?redirect=/admin");
+      return;
+    }
+
+    // Verifica se l'utente è admin
+    if (!store.isAdmin()) {
+      showToast("Accesso negato: solo gli amministratori possono accedere");
+      router.navigate("/home");
+      return;
+    }
+
     await loadView("admin");
   });
 
@@ -384,7 +398,7 @@ async function initCheckoutView() {
 }
 
 // Controller per il login
-function initLoginView() {
+function initLoginView(params) {
   initPasswordToggles();
   setupForgotPasswordModal();
 
@@ -434,7 +448,19 @@ function initLoginView() {
         await checkUserAuth();
 
         setTimeout(() => {
-          router.navigate("/home");
+          // Reindirizza alla pagina originale se presente il parametro redirect
+          let redirectTo = params.redirect || "/home";
+
+          // Se il redirect contiene caratteri codificati (come %3F per ?), decodificali
+          redirectTo = decodeURIComponent(redirectTo);
+
+          // Verifica se l'utente è admin e sta cercando di accedere all'admin
+          if (redirectTo === "/admin" && !store.isAdmin()) {
+            showToast("Accesso negato: non hai i permessi di amministratore");
+            redirectTo = "/home";
+          }
+
+          router.navigate(redirectTo);
         }, 1000);
       } else {
         showMessage(data.message, "error");

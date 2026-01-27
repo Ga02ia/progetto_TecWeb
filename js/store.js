@@ -162,6 +162,13 @@ class Store {
     return this.state.isAuthenticated;
   }
 
+  isAdmin() {
+    return (
+      this.state.user &&
+      (this.state.user.ruolo === "admin" || this.state.user.is_admin === true)
+    );
+  }
+
   // Logout volontario - svuota il carrello
   logout() {
     // Svuota il carrello al logout per sicurezza

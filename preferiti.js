@@ -10,14 +10,16 @@ function checkAuthAndLoadFavorites() {
     .then((response) => response.json())
     .then((data) => {
       if (!data.authenticated) {
-        window.location.href = "login.html";
+        const redirectUrl = encodeURIComponent("/preferiti");
+        window.location.href = `login.html?redirect=${redirectUrl}`;
         return;
       }
       loadFavorites();
     })
     .catch((error) => {
       console.error("Errore verifica autenticazione:", error);
-      window.location.href = "login.html";
+      const redirectUrl = encodeURIComponent("/preferiti");
+      window.location.href = `login.html?redirect=${redirectUrl}`;
     });
 }
 
