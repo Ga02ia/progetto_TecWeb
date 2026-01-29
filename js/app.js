@@ -482,72 +482,114 @@ function initRegistrazioneView() {
   const registerForm = document.getElementById("registerForm");
   if (!registerForm) return;
 
+  const inputs = registerForm.querySelectorAll("input");
+
+  // 1. DEFINIZIONE REGOLE DI VALIDAZIONE
+  const validators = {
+    nome: (val) => (val.trim().length > 0 ? "" : "Inserisci il tuo nome"),
+    cognome: (val) => (val.trim().length > 0 ? "" : "Inserisci il tuo cognome"),
+    mail: (val) =>
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)
+        ? ""
+        : "Inserisci un'email valida",
+    telefono: (val) =>
+      /^\d{10}$/.test(val) ? "" : "Inserisci un numero di 10 cifre",
+    via: (val) => (val.trim().length > 0 ? "" : "Indirizzo richiesto"),
+    citta: (val) => (val.trim().length > 0 ? "" : "Città richiesta"),
+    provincia: (val) =>
+      /^[a-zA-Z]{2}$/.test(val) ? "" : "2 lettere (es. MI)",
+    cap: (val) => (/^\d{5}$/.test(val) ? "" : "CAP di 5 cifre"),
+    password: (val) => (val.length >= 6 ? "" : "Minimo 6 caratteri"),
+    password_confirm: (val) => {
+      const pass = document.getElementById("registerPassword").value;
+      return val === pass && val.length >= 6
+        ? ""
+        : "Le password non coincidono";
+    },
+  };
+
+  // 2. FUNZIONE DI CONTROLLO SINGOLO CAMPO
+  // Ritorna true se c'è un errore, false se è tutto ok
+  function checkInput(input) {
+    const name = input.name;
+    const val = input.value;
+    // Cerca il div .error-message nel genitore .form-group
+    const errorDiv = input
+      .closest(".form-group")
+      .querySelector(".error-message");
+
+    const errorText = validators[name](val);
+
+    if (errorText) {
+      // Mostra errore
+      errorDiv.textContent = errorText;
+      errorDiv.classList.add("visible");
+      input.classList.add("input-error");
+      return true; // Trovato errore
+    } else {
+      // Nascondi errore
+      errorDiv.textContent = "";
+      errorDiv.classList.remove("visible");
+      input.classList.remove("input-error");
+      return false; // Nessun errore
+    }
+  }
+
+  // 3. ASSEGNAZIONE EVENT LISTENER (BLUR & INPUT)
+  inputs.forEach((input) => {
+    // Quando esci dal campo -> Controlla
+    input.addEventListener("blur", () => checkInput(input));
+
+    // Mentre scrivi -> Se c'era rosso, ricontrolla per toglierlo
+    input.addEventListener("input", () => {
+      if (input.classList.contains("input-error")) {
+        checkInput(input);
+      }
+      // Caso speciale: se scrivo nella password, ricontrollo la conferma
+      if (input.name === "password") {
+        const confirmInput = document.getElementById("registerPasswordConfirm");
+        if (confirmInput.value !== "") checkInput(confirmInput);
+      }
+    });
+  });
+
+  // 4. GESTIONE SUBMIT DEL FORM
   registerForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const nome = document.getElementById("firstName").value.trim();
-    const cognome = document.getElementById("lastName").value.trim();
-    const mail = document.getElementById("registerEmail").value.trim();
-    const telefono = document.getElementById("telefono").value.trim();
-    const via = document.getElementById("via").value.trim();
-    const citta = document.getElementById("citta").value.trim();
-    const provincia = document
-      .getElementById("provincia")
-      .value.trim()
-      .toUpperCase();
-    const cap = document.getElementById("cap").value.trim();
-    const password = document.getElementById("registerPassword").value;
-    const passwordConfirm = document.getElementById(
-      "registerPasswordConfirm",
-    ).value;
+    const registerBtn = document.querySelector("#registerForm .auth-btn");
     const terms = document.getElementById("terms").checked;
 
-    const registerBtn = document.querySelector("#registerForm .auth-btn");
+    // Check validazione visuale su TUTTI i campi
+    let hasVisualErrors = false;
+    inputs.forEach((input) => {
+      // Esegue il controllo e se torna true (errore), aggiorna il flag
+      if (checkInput(input)) hasVisualErrors = true;
+    });
+
+    if (hasVisualErrors) {
+      showMessage("Compila correttamente i campi evidenziati in rosso", "error");
+      return;
+    }
 
     if (!terms) {
       showMessage("Accetta i termini e condizioni", "error");
       return;
     }
 
-    if (
-      !nome ||
-      !cognome ||
-      !mail ||
-      !telefono ||
-      !via ||
-      !citta ||
-      !provincia ||
-      !cap ||
-      !password
-    ) {
-      showMessage("Compila tutti i campi", "error");
-      return;
-    }
-
-    if (!mail.includes("@")) {
-      showMessage("Email non valida", "error");
-      return;
-    }
-
-    if (provincia.length !== 2) {
-      showMessage("Provincia deve essere di 2 caratteri (es. MI)", "error");
-      return;
-    }
-
-    if (cap.length !== 5 || isNaN(cap)) {
-      showMessage("CAP non valido (5 cifre)", "error");
-      return;
-    }
-
-    if (password !== passwordConfirm) {
-      showMessage("Le password non coincidono", "error");
-      return;
-    }
-
-    if (password.length < 6) {
-      showMessage("Password troppo corta (min 6 caratteri)", "error");
-      return;
-    }
+    // Raccogli i dati (ora siamo sicuri che siano validi)
+    const formData = {
+      nome: document.getElementById("firstName").value.trim(),
+      cognome: document.getElementById("lastName").value.trim(),
+      mail: document.getElementById("registerEmail").value.trim(),
+      telefono: document.getElementById("telefono").value.trim(),
+      via: document.getElementById("via").value.trim(),
+      citta: document.getElementById("citta").value.trim(),
+      provincia: document.getElementById("provincia").value.trim().toUpperCase(),
+      cap: document.getElementById("cap").value.trim(),
+      password: document.getElementById("registerPassword").value,
+      password_confirm: document.getElementById("registerPasswordConfirm").value,
+    };
 
     registerBtn.textContent = "Registrazione...";
     registerBtn.disabled = true;
@@ -557,18 +599,7 @@ function initRegistrazioneView() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "same-origin",
-        body: JSON.stringify({
-          nome: nome,
-          cognome: cognome,
-          mail: mail,
-          telefono: telefono,
-          via: via,
-          citta: citta,
-          provincia: provincia,
-          cap: cap,
-          password: password,
-          password_confirm: passwordConfirm,
-        }),
+        body: JSON.stringify(formData),
       });
 
       const data = await response.json();

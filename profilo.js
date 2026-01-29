@@ -191,6 +191,8 @@ function loadUserOrders() {
 function displayOrders(ordini) {
   const container = document.getElementById("ordersContainer");
 
+  const basePath = window.image_path || "/progetto_TecWeb/img/";
+
   if (ordini.length === 0) {
     container.innerHTML = '<p class="no-orders">Nessun ordine trovato.</p>';
     return;
@@ -219,19 +221,20 @@ function displayOrders(ordini) {
         <div class="order-card-body">
           <div class="order-products">
             ${ordine.prodotti
-              .map(
-                (prodotto) => `
+              .map((prodotto) => {
+                const fullImagePath = basePath + prodotto.image_path;
+              return ` 
               <div class="order-product-item">
-                <img src="${prodotto.image_path}" alt="${prodotto.titolo}" class="order-product-img" />
+                <img src="${fullImagePath}" alt="${prodotto.titolo}" class="order-product-img" />
                 <div class="order-product-info">
                   <h4>${prodotto.titolo}</h4>
                   <p class="order-product-author">${prodotto.autore}</p>
                   <p class="order-product-price">€${parseFloat(prodotto.prezzo).toFixed(2)}</p>
                 </div>
               </div>
-            `,
-              )
-              .join("")}
+            `;
+            })
+            .join("")}
           </div>
         </div>
         <div class="order-card-footer">

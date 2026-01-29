@@ -4,6 +4,13 @@ let currentUser = null;
 let allProducts = [];
 let allUsers = [];
 let allCategories = [];
+let productToDeleteId = null; //per eliminare prodotto
+let userToBlockId = null; //per bloccare utente 
+let blockStatus = null; 
+let userToToggleRoleId = null;  //per cambiare ruolo
+let roleTarget = null;
+
+
 
 // Funzione di inizializzazione principale
 async function initAdminPage() {
@@ -46,6 +53,9 @@ async function initAdminPage() {
   await loadDashboardData();
   setupNavigation();
   setupProductForm();
+  setupDeleteModal();
+  setupBlockUserModal();
+  setupAdminRoleModal();
 }
 
 // Esponi globalmente per la SPA
@@ -286,29 +296,62 @@ function setupProductForm() {
     }
   });
 }
+
+//ELIMINA PRODOTTO
+//funzione per eliminare prodotto
 async function deleteProduct(productId) {
-  if (!confirm("Sei sicuro di voler eliminare questo prodotto?")) return;
+  //salva id dentro variabile dichiarata all'inizio
+  productToDeleteId = productId;
+  
+  //apre modale 
+  const modal = document.getElementById("deleteConfirmModal");
+  modal.classList.add("show"); // Opzionale se usi classi per animazioni
+  modal.style.display = "flex"; //per centrarla bene
+}
 
-  try {
-    const response = await fetch("api/admin/prodotti.php", {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id: productId }),
-    });
+//modale di conferma per eliminare prodotto 
+function setupDeleteModal() {
+  const modal = document.getElementById("deleteConfirmModal");
+  const confirmBtn = document.getElementById("confirmDeleteBtn");
+  const cancelBtn = document.getElementById("cancelDeleteBtn");
 
-    const data = await response.json();
+  //se schiacci conferma dentro la modale 
+  confirmBtn.addEventListener("click", async () => {
+    if (productToDeleteId) {
+      //chiama la API per eliminare 
+      try {
+        const response = await fetch("api/admin/prodotti.php", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: productToDeleteId }),
+        });
+        const data = await response.json();
 
-    if (data.success) {
-      closeProductModal();
-      await loadProducts();
-      showToast(data.message || "Prodotto eliminato con successo!", "success");
-    } else {
-      showError("Errore: " + data.message);
+        if (data.success) {
+          showToast("Prodotto eliminato con successo!", "success");
+          closeDeleteModal(); // Chiudi modale
+          await loadProducts(); // Ricarica tabella
+        } else {
+          showError("Errore: " + data.message);
+        }
+      } catch (error) {
+        showError("Errore durante l'eliminazione");
+      }
     }
-  } catch (error) {
-    console.error("Errore:", error);
-    showError("Errore durante l'eliminazione del prodotto");
-  }
+  });
+
+  //se schiacci annulla dentrro la modale
+  cancelBtn.addEventListener("click", closeDeleteModal);
+
+  //chiude se clicchi fuori dalla modale
+  window.addEventListener("click", (e) => {
+    if (e.target === modal) closeDeleteModal();
+  });
+}
+
+function closeDeleteModal() {
+  document.getElementById("deleteConfirmModal").style.display = "none";
+  productToDeleteId = null; // Resetta l'ID
 }
 
 // ===== GESTIONE UTENTI =====
@@ -517,59 +560,171 @@ function closeUserModal() {
   document.getElementById("userModal").style.display = "none";
 }
 
+// BLOCCO UTENTE
+//funzione per bloccare
 async function toggleBlockUser(userId, blocked) {
-  const action = blocked == 1 ? "bloccare" : "sbloccare";
-  if (!confirm(`Sei sicuro di voler ${action} questo utente?`)) return;
+  // salva dati nelle variabili globali
+  userToBlockId = userId;
+  blockStatus = blocked;
 
-  try {
-    const response = await fetch("api/admin/utenti.php", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id: userId, blocked: blocked }),
-    });
+  //interfaccia modale
+  const modal = document.getElementById("blockUserConfirmModal");
+  const title = document.getElementById("blockModalTitle");
+  const msg = document.getElementById("blockModalMessage");
+  const btn = document.getElementById("confirmBlockBtn");
 
-    const data = await response.json();
-
-    if (data.success) {
-      showToast(data.message);
-      await loadUsers();
-      updateDashboardStats();
-    } else {
-      showError("Errore: " + data.message);
-    }
-  } catch (error) {
-    console.error("Errore:", error);
-    showError("Errore durante l'operazione");
+  if (blocked == 1) {
+    // se blocca
+    title.textContent = "Blocca Utente";
+    msg.textContent = "L'utente non potrà più accedere al sito. Sei sicuro?";
+    btn.textContent = "Blocca";
+    btn.className = "btn btn-danger"; // Rosso
+  } else {
+    // se sblocca
+    title.textContent = "Sblocca Utente";
+    msg.textContent = "L'utente potrà nuovamente accedere al sito. Sei sicuro?";
+    btn.textContent = "Sblocca";
+    btn.className = "btn btn-success"; // Verde (assicurati di avere questa classe nel CSS, o usa btn-primary)
   }
+
+  // mostra modale
+  modal.style.display = "flex";
 }
 
-async function toggleAdminRole(userId, ruolo) {
-  const action =
-    ruolo == 1
-      ? "rendere amministratore"
-      : "rimuovere i privilegi di amministratore a";
-  if (!confirm(`Sei sicuro di voler ${action} questo utente?`)) return;
+//modale per conferma blocco utente
+function setupBlockUserModal() {
+  const modal = document.getElementById("blockUserConfirmModal");
+  const confirmBtn = document.getElementById("confirmBlockBtn");
+  const cancelBtn = document.getElementById("cancelBlockBtn");
 
-  try {
-    const response = await fetch("api/admin/utenti.php", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id: userId, ruolo: ruolo }),
-    });
+  //se schiacci conferma dentro la modale 
+  confirmBtn.addEventListener("click", async () => {
+    if (userToBlockId !== null && blockStatus !== null) {
+      try {
+        const response = await fetch("api/admin/utenti.php", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: userToBlockId, blocked: blockStatus }),
+        });
 
-    const data = await response.json();
+        const data = await response.json();
 
-    if (data.success) {
-      showToast(data.message);
-      await loadUsers();
-      updateDashboardStats();
-    } else {
-      showError("Errore: " + data.message);
+        if (data.success) {
+          showToast(data.message, "success");
+          closeBlockModal(); // Chiudi modale
+          await loadUsers(); // Ricarica tabella utenti
+          updateDashboardStats(); // Aggiorna i contatori in alto
+        } else {
+          showError("Errore: " + data.message);
+        }
+      } catch (error) {
+        console.error("Errore:", error);
+        showError("Errore durante l'operazione");
+      }
     }
-  } catch (error) {
-    console.error("Errore:", error);
-    showError("Errore durante l'operazione");
+  });
+
+  //se clicchi annulla
+  cancelBtn.addEventListener("click", closeBlockModal);
+
+  //chiude cliccando fuori
+  window.addEventListener("click", (e) => {
+    if (e.target === modal) closeBlockModal();
+  });
+}
+
+function closeBlockModal() {
+  document.getElementById("blockUserConfirmModal").style.display = "none";
+  userToBlockId = null;
+  blockStatus = null;
+}
+
+// ADMIN UTENTE 
+//funzione 
+async function toggleAdminRole(userId, ruolo) {
+  //recupera dati utente da array
+  const user = allUsers.find(u => u.id == userId);
+
+  //controllo: impossibile rendere admin un utente bloccato
+  if (ruolo == 1 && user && user.blocked == 1) {
+    showError("Impossibile rendere Amministratore un utente bloccato. Devi prima sbloccarlo.");
+    return;
   }
+
+  // salva dati nelle variabili globali
+  userToToggleRoleId = userId;
+  roleTarget = ruolo;
+
+  //interfaccia modale 
+  const modal = document.getElementById("adminRoleConfirmModal");
+  const title = document.getElementById("adminRoleModalTitle");
+  const msg = document.getElementById("adminRoleModalMessage");
+  const btn = document.getElementById("confirmAdminRoleBtn");
+
+  if (ruolo == 1) {
+    // promuove a admin
+    title.textContent = "Promuovi ad Admin";
+    msg.textContent = "Questo utente avrà accesso completo alla dashboard di amministrazione.";
+    btn.textContent = "Promuovi";
+    btn.className = "btn btn-success";
+  } else {
+    // rimuove da admin
+    title.textContent = "Rimuovi Admin";
+    msg.textContent = "L'utente perderà l'accesso alla dashboard di amministrazione.";
+    btn.textContent = "Rimuovi";
+    btn.className = "btn btn-danger";
+  }
+
+  //mostra modale 
+  modal.style.display = "flex";
+}
+
+//modale 
+function setupAdminRoleModal() {
+  const modal = document.getElementById("adminRoleConfirmModal");
+  const confirmBtn = document.getElementById("confirmAdminRoleBtn");
+  const cancelBtn = document.getElementById("cancelAdminRoleBtn");
+
+  //se schiaccia conferma 
+  confirmBtn.addEventListener("click", async () => {
+    if (userToToggleRoleId !== null && roleTarget !== null) {
+      try {
+        const response = await fetch("api/admin/utenti.php", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: userToToggleRoleId, ruolo: roleTarget }),
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          if (typeof showToast === 'function') showToast(data.message, "success");
+          closeAdminRoleModal();
+          await loadUsers(); // Ricarica la tabella
+          updateDashboardStats(); // Aggiorna i contatori
+        } else {
+          showError("Errore: " + data.message);
+        }
+      } catch (error) {
+        console.error("Errore:", error);
+        showError("Errore durante l'operazione");
+      }
+    }
+  });
+
+  // se schiaccia annulla
+  cancelBtn.addEventListener("click", closeAdminRoleModal);
+
+  // chiude se click fuori da finestra
+  window.addEventListener("click", (e) => {
+    if (e.target === modal) closeAdminRoleModal();
+  });
+}
+
+function closeAdminRoleModal() {
+  document.getElementById("adminRoleConfirmModal").style.display = "none";
+  userToToggleRoleId = null;
+  roleTarget = null;
 }
 
 // ===== NAVIGAZIONE =====

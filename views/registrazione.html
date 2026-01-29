@@ -1,5 +1,7 @@
-<!-- PAGINA REGISTRAZIONE -->
+<!--PAGINA REGISTRAZIONE-->
 <div class="auth-page">
+
+  <!-- div artly -->
   <div class="container auth-grid">
     <div class="auth-intro">
       <h1>Crea il tuo account Artly</h1>
@@ -14,6 +16,7 @@
       </ul>
     </div>
 
+    <!-- div form registrazione-->
     <div class="auth-card">
       <h2>Registrati</h2>
       <p class="auth-subtitle">Ci vorranno solo pochi secondi.</p>
@@ -21,29 +24,33 @@
       <form class="auth-form" id="registerForm">
         <div class="form-row two-cols">
           <div class="form-group">
-            <label for="firstName">Nome</label>
+            <label for="firstName">*Nome</label>
             <input
               type="text"
               id="firstName"
               name="nome"
               placeholder="Mario"
               required
+              style="text-transform: capitalize;"
             />
+            <!-- <div class="error-message"></div> -->
           </div>
           <div class="form-group">
-            <label for="lastName">Cognome</label>
+            <label for="lastName">*Cognome</label>
             <input
               type="text"
               id="lastName"
               name="cognome"
               placeholder="Rossi"
               required
+              style="text-transform: capitalize;"
             />
+            <!-- <div class="error-message"></div> -->
           </div>
         </div>
 
         <div class="form-group">
-          <label for="registerEmail">Email</label>
+          <label for="registerEmail">*Email</label>
           <input
             type="email"
             id="registerEmail"
@@ -51,21 +58,24 @@
             placeholder="nome@esempio.it"
             required
           />
+          <!-- <div class="error-message"></div> -->
         </div>
 
         <div class="form-group">
-          <label for="telefono">Telefono</label>
+          <label for="telefono">*Telefono</label>
           <input
             type="tel"
             id="telefono"
             name="telefono"
-            placeholder="+39 333 123 4567"
+            placeholder="3331234567"
+            maxlength="10"
             required
           />
+          <!-- <div class="error-message"></div> -->
         </div>
 
         <div class="form-group">
-          <label for="via">Indirizzo (Via e numero civico)</label>
+          <label for="via">*Indirizzo (Via e numero civico)</label>
           <input
             type="text"
             id="via"
@@ -73,21 +83,24 @@
             placeholder="Via Roma, 123"
             required
           />
+          <!-- <div class="error-message"></div> -->
         </div>
 
         <div class="form-row three-cols">
           <div class="form-group">
-            <label for="citta">Città</label>
+            <label for="citta">*Città</label>
             <input
               type="text"
               id="citta"
               name="citta"
               placeholder="Milano"
               required
+              style="text-transform: capitalize;"
             />
+            <!-- <div class="error-message"></div> -->
           </div>
           <div class="form-group">
-            <label for="provincia">Provincia</label>
+            <label for="provincia">*Provincia</label>
             <input
               type="text"
               id="provincia"
@@ -95,24 +108,28 @@
               placeholder="MI"
               maxlength="2"
               required
+              style="text-transform: uppercase;"
             />
+            <!-- <div class="error-message"></div> -->
           </div>
           <div class="form-group">
-            <label for="cap">CAP</label>
+            <label for="cap">*CAP</label>
             <input
               type="text"
               id="cap"
               name="cap"
               placeholder="20100"
               maxlength="5"
+              inputmode="numeric"
               required
             />
+            <!-- <div class="error-message"></div> -->
           </div>
         </div>
 
         <div class="form-row two-cols">
           <div class="form-group password-input-wrapper">
-            <label for="registerPassword">Password</label>
+            <label for="registerPassword">*Password</label>
             <input
               type="password"
               id="registerPassword"
@@ -120,16 +137,13 @@
               placeholder="Minimo 6 caratteri"
               required
             />
-            <button
-              type="button"
-              class="password-toggle"
-              data-target="registerPassword"
-            >
-              <span class="eye-icon">👁️</span>
+            <button type="button" class="password-toggle" data-target="registerPassword">
+              <img src="img/pw_nascosta.png" alt="Mostra password" class="eye-icon">
             </button>
+            <!-- <div class="error-message"></div> -->
           </div>
           <div class="form-group password-input-wrapper">
-            <label for="registerPasswordConfirm">Conferma password</label>
+            <label for="registerPasswordConfirm">*Conferma password</label>
             <input
               type="password"
               id="registerPasswordConfirm"
@@ -137,13 +151,10 @@
               placeholder="Ripeti la password"
               required
             />
-            <button
-              type="button"
-              class="password-toggle"
-              data-target="registerPasswordConfirm"
-            >
-              <span class="eye-icon">👁️</span>
+            <button type="button" class="password-toggle" data-target="registerPasswordConfirm">
+              <img src="img/pw_nascosta.png" alt="Mostra password" class="eye-icon">
             </button>
+            <!-- <div class="error-message"></div> -->
           </div>
         </div>
 
@@ -151,7 +162,7 @@
           <label class="checkbox-label">
             <input type="checkbox" id="terms" required />
             <span>
-              Accetto i
+              *Accetto i
               <a href="#" class="form-link">Termini e Condizioni</a>
               e la
               <a href="#" class="form-link">Privacy Policy</a>

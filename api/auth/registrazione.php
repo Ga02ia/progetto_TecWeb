@@ -1,6 +1,5 @@
 <?php
 require_once __DIR__ . '/../../dbConnection.php';
-
 require_once __DIR__ . '/../../src/support/response.php';
 require_once __DIR__ . '/../../src/support/auth.php';
 
@@ -98,3 +97,4 @@ try {
     error_log("Errore generico registrazione: " . $e->getMessage());
     Response::error("Errore server", 500);
 }
+

@@ -3,7 +3,7 @@
 //variabile globale per definizione del percorso delle immagini
 window.image_path = "/progetto_TecWeb/img/";
 
-// Toast notifications
+// NOTIFICHE TOAST
 let toastTimeout;
 
 function showToast(message, type = "normal") {
@@ -133,6 +133,7 @@ function debounce(func, wait) {
 // Gestione toggle password
 function initPasswordToggles() {
   const passwordToggles = document.querySelectorAll(".password-toggle");
+  
   passwordToggles.forEach((toggle) => {
     toggle.addEventListener("click", function () {
       const targetId = this.getAttribute("data-target");
@@ -141,10 +142,10 @@ function initPasswordToggles() {
 
       if (input.type === "password") {
         input.type = "text";
-        icon.textContent = "👁️‍🗨️";
+        icon.src = "img/pw_visibile.png"
       } else {
         input.type = "password";
-        icon.textContent = "👁️";
+        icon.src = "img/pw_nascosta.png"
       }
     });
   });

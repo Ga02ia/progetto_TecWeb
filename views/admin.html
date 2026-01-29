@@ -50,7 +50,8 @@
     </div>
   </div>
 
-  <!-- Product Modal -->
+  <!-- MODALI PRODOTTO -->
+  <!-- Aggiungi prodotto -->
   <div id="productModal" class="modal">
     <div class="modal-content">
       <span class="modal-close" id="closeProductModal">&times;</span>
@@ -100,7 +101,21 @@
     </div>
   </div>
 
-  <!-- User Modal -->
+  <!-- elimina prodotto -->
+  <div id="deleteConfirmModal" class="modal">
+    <div class="modal-content confirmation-content">
+      <h3>Elimina Prodotto</h3>
+      <p>Sei sicuro di voler eliminare questo prodotto?</p>
+      
+      <div class="form-actions" style="justify-content: center; gap: 15px;">
+        <button type="button" class="btn btn-secondary" id="cancelDeleteBtn">Annulla</button>
+        <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Elimina</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODALI UTENTE -->
+  <!-- dettagli utente -->
   <div id="userModal" class="modal">
     <div class="modal-content">
       <span class="modal-close" id="closeUserModal">&times;</span>
@@ -108,4 +123,31 @@
       <div id="userDetail"></div>
     </div>
   </div>
+
+  <!-- blocco utente -->
+  <div id="blockUserConfirmModal" class="modal">
+    <div class="modal-content confirmation-content">
+      <h3 id="blockModalTitle">Blocca Utente</h3>
+      <p id="blockModalMessage">Sei sicuro di voler bloccare questo utente?</p>
+      
+      <div class="form-actions" style="justify-content: center; gap: 15px;">
+        <button type="button" class="btn btn-secondary" id="cancelBlockBtn">Annulla</button>
+        <button type="button" class="btn btn-danger" id="confirmBlockBtn">Conferma</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- admin utente -->
+  <div id="adminRoleConfirmModal" class="modal">
+    <div class="modal-content confirmation-content">
+      <h3 id="adminRoleModalTitle">Gestione Ruoli</h3>
+      <p id="adminRoleModalMessage">Sei sicuro di voler modificare i permessi di questo utente?</p>
+      
+      <div class="form-actions" style="justify-content: center; gap: 15px;">
+        <button type="button" class="btn btn-secondary" id="cancelAdminRoleBtn">Annulla</button>
+        <button type="button" class="btn btn-danger" id="confirmAdminRoleBtn">Conferma</button>
+      </div>
+    </div>
+  </div>
+
 </section>

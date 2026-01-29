@@ -249,7 +249,7 @@ class HeaderComponent {
   }
 
   // Mostra risultati ricerca
-  displaySearchResults(results, query, container) {
+ displaySearchResults(results, query, container) {
     if (results.length === 0) {
       container.innerHTML = `<p class="search-no-results">Nessun risultato per "<strong>${query}</strong>"</p>`;
       return;
@@ -259,19 +259,26 @@ class HeaderComponent {
     html += '<div class="search-results-list">';
 
     results.slice(0, 5).forEach((product) => {
+      
       let imageStyle = "";
-      if (product.image_path && product.image_path.includes("pinterest.com")) {
-        const colors = [
-          "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-          "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
-          "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
-          "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)",
-          "linear-gradient(135deg, #fa709a 0%, #fee140 100%)",
-        ];
-        imageStyle = `background: ${colors[product.id % colors.length]};`;
-      } else if (product.image_path) {
-        imageStyle = `background-image: url('${product.image_path}');`;
+      
+      if (product.image_path && product.image_path.trim() !== "") {
+        // 1. Percorso base globale
+        const basePath = window.image_path || "/progetto_TecWeb/img/";
+        
+        // 2. Pulisce il nome file (rimuove slash iniziale se presente)
+        const imgName = product.image_path.startsWith('/') ? product.image_path.substring(1) : product.image_path;
+        
+        // 3. Percorso completo
+        const fullPath = basePath + imgName;
+        
+        // 4. Stile CSS
+        imageStyle = `background-image: url('${fullPath}'); background-size: cover; background-position: center;`;
+      } else {
+        // Fallback standard (gradiente viola/blu)
+        imageStyle = "background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);";
       }
+      
 
       html += `
         <a href="/dettaglio-prodotto?id=${product.id}" data-link class="search-result-item">
@@ -284,15 +291,10 @@ class HeaderComponent {
         </a>
       `;
     });
-
-    html += "</div>";
-
-    if (results.length > 5) {
-      html += `<a href="/prodotti" data-link class="search-view-all">Vedi tutti i ${results.length} risultati →</a>`;
-    }
-
+    
+    html += '</div>'; // Chiudo il div della lista
     container.innerHTML = html;
-  }
+}
 
   // Gestisce il logout
   async handleLogout() {
